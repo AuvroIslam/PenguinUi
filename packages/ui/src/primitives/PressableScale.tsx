@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, type ComponentProps } from 'react';
 import {
   Pressable,
   type GestureResponderEvent,
@@ -12,6 +12,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  type AnimatedStyle,
   type SharedValue,
 } from 'react-native-reanimated';
 
@@ -34,7 +35,10 @@ export type PressableScaleProps = Omit<PressableProps, 'style'> & {
   pressed?: SharedValue<number>;
   /** Opacity when disabled. Set to 1 for a control that is disabled because it is busy. */
   disabledOpacity?: number;
-  style?: StyleProp<ViewStyle>;
+  /** A Reanimated layout transition, for a control whose size changes with its content. */
+  layout?: ComponentProps<typeof Animated.View>['layout'];
+  /** Static or animated styles. */
+  style?: StyleProp<AnimatedStyle<StyleProp<ViewStyle>>>;
 };
 
 /**

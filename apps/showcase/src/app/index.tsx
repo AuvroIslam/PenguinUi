@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { Glyph, PressableScale, Text, useTheme } from 'penguin-ui';
+import { Glyph, PressableScale, Text, bareInput, useTheme } from 'penguin-ui';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
   },
-  input: { flex: 1, fontSize: 15, padding: 0 },
+  input: { ...bareInput, flex: 1, fontSize: 15 },
   section: { marginTop: 28 },
   sectionHead: {
     flexDirection: 'row',

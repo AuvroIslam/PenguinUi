@@ -13,12 +13,25 @@ export * from './primitives/Text';
 export * from './primitives/Glyph';
 export * from './primitives/LoadingDots';
 export * from './primitives/FadeEdge';
+export * from './primitives/DrawnPath';
+export * from './primitives/ArcSpinner';
 export * from './utils/color';
 export * from './utils/layout';
 export * from './utils/useControllable';
 
 // Actions
 export * from './components/actions/Button';
+export * from './components/actions/IconButton';
+export * from './components/actions/StatefulButton';
+export * from './components/actions/HoldToConfirm';
+export * from './components/actions/SlideToConfirm';
+export * from './components/actions/MagneticButton';
+export * from './components/actions/LikeButton';
+export * from './components/actions/SpeedDial';
+export * from './components/actions/PopButton';
+export * from './components/actions/ShineButton';
+export * from './components/actions/CopyButton';
+export * from './components/actions/ExpandButton';
 
 // Text and numbers
 export * from './components/text/TextReveal';

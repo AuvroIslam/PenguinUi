@@ -13,7 +13,11 @@ export function Col({
   align?: ViewStyle['alignItems'];
   style?: ViewStyle;
 }) {
-  return <View style={[{ gap, alignItems: align }, style]}>{children}</View>;
+  return (
+    <View style={[{ gap, alignItems: align }, align === 'stretch' ? { alignSelf: 'stretch' } : null, style]}>
+      {children}
+    </View>
+  );
 }
 
 /** Horizontal stack for laying out demo content. */
