@@ -1,0 +1,48 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# private notes
+inspiration.md
+
+# dependencies
+node_modules/
+
+# expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# native builds
+android/
+ios/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# metro
+.metro-health-check*
+
+# typescript
+*.tsbuildinfo
+
+# logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.log
+
+# os / editor
+.DS_Store
+Thumbs.db
+*.pem
+.vscode/
+.idea/
+
+# local tooling output
+.screenshots/
