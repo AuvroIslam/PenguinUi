@@ -1,0 +1,16 @@
+{
+  "name": "penguin-ui-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "start": "npm run start -w showcase",
+    "android": "npm run android -w showcase",
+    "ios": "npm run ios -w showcase",
+    "web": "npm run web -w showcase",
+    "typecheck": "npm run typecheck -w penguin-ui && npm run typecheck -w showcase"
+  }
+}
