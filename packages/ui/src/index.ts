@@ -70,3 +70,6 @@ export * from './components/controls/Checkbox';
 export * from './components/controls/SegmentedControl';
 export * from './components/controls/ThemeToggle';
 export * from './components/controls/Knob';
+export * from './components/controls/RadioGroup';
+export * from './components/controls/ChipGroup';
+export * from './components/controls/PlanPicker';
