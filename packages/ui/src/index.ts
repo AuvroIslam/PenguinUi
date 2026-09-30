@@ -56,3 +56,6 @@ export * from './components/inputs/OTPInput';
 export * from './components/inputs/PinPad';
 export * from './components/inputs/Slider';
 export * from './components/inputs/RangeSlider';
+export * from './components/inputs/WheelPicker';
+export * from './components/inputs/RatingInput';
+export * from './components/inputs/DateStrip';

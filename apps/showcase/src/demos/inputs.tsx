@@ -1,5 +1,6 @@
-import { Glyph, OTPInput, PasswordField, PinPad, RangeSlider, Slider, Stepper, Text, TextField, useTheme, type OTPStatus } from 'penguin-ui';
+import { DateStrip, Glyph, OTPInput, PasswordField, PinPad, RangeSlider, RatingInput, Slider, WheelPicker, Stepper, Text, TextField, useTheme, type OTPStatus } from 'penguin-ui';
 import { useState } from 'react';
+import { View } from 'react-native';
 
 import { Col } from './kit';
 import type { Demo } from './types';
@@ -111,6 +112,44 @@ function RangeSliderDemo() {
   );
 }
 
+function WheelDemo() {
+  const [hour, setHour] = useState('7');
+  const hours = Array.from({ length: 12 }, (_, i) => String(i + 1));
+  const minutes = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, '0'));
+  return (
+    <Col gap={14} align="stretch" style={{ paddingHorizontal: 24 }}>
+      <View style={{ flexDirection: 'row', gap: 10 }}>
+        <WheelPicker items={hours} value={hour} onChange={setHour} style={{ flex: 1 }} />
+        <WheelPicker items={minutes} defaultValue="30" style={{ flex: 1 }} />
+        <WheelPicker items={['AM', 'PM']} defaultValue="PM" style={{ flex: 1 }} />
+      </View>
+      <Text variant="caption" tone="muted" align="center">
+        Alarm at {hour}
+      </Text>
+    </Col>
+  );
+}
+
+function RatingDemo() {
+  const [rating, setRating] = useState(3);
+  return (
+    <Col gap={14}>
+      <RatingInput value={rating} onChange={setRating} />
+      <Text variant="caption" tone="muted">
+        {rating === 0 ? 'Drag across the stars' : `${rating} of 5`}
+      </Text>
+    </Col>
+  );
+}
+
+function DateStripDemo() {
+  return (
+    <Col align="stretch" style={{ paddingHorizontal: 16, paddingTop: 12 }}>
+      <DateStrip />
+    </Col>
+  );
+}
+
 export const inputs: Demo[] = [
   {
     id: 'text-field',
@@ -185,5 +224,37 @@ export const inputs: Demo[] = [
     touch: 'Selection tick per step, a rigid tap when the thumbs meet.',
     layout: 'fill',
     Component: RangeSliderDemo,
+  },
+  {
+    id: 'wheel-picker',
+    name: 'WheelPicker',
+    category: 'Inputs',
+    summary: '3D wheel picker.',
+    motion:
+      'Rows sit on a real cylinder: they turn away and drop toward the axis as they leave the centre, fading with the angle. Release decays and snaps to the nearest row.',
+    touch: 'Selection tick on every row that crosses the centre.',
+    layout: 'fill',
+    Component: WheelDemo,
+  },
+  {
+    id: 'rating-input',
+    name: 'RatingInput',
+    category: 'Inputs',
+    summary: 'Star rating you scrub.',
+    motion:
+      'Lay a finger on the row and slide. Stars fill as it passes, each popping in a beat after the last on a bouncy spring, and sliding back un-fills them at once. Tapping the current rating clears it.',
+    touch: 'Selection tick for every star crossed.',
+    Component: RatingDemo,
+  },
+  {
+    id: 'date-strip',
+    name: 'DateStrip',
+    category: 'Inputs',
+    summary: 'Horizontal week selector.',
+    motion:
+      'One pill slides between days on a snappy spring, and each label changes colour as the pill passes under it. Swipe sideways to turn the week: the row slides out and the next slides in, keeping the weekday.',
+    touch: 'Selection haptic on a day, light haptic when the week turns.',
+    layout: 'fill',
+    Component: DateStripDemo,
   },
 ];
