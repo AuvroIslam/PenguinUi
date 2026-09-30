@@ -1,4 +1,20 @@
-import { Button, ContextMenu, Dock, MenuOverlay, PageDots, StepProgress, TabBar, Tabs, Text, useTheme } from 'penguin-ui';
+import {
+  Button,
+  CollapsingHeader,
+  ContextMenu,
+  Dock,
+  Glyph,
+  LiquidTabBar,
+  MenuOverlay,
+  Onboarding,
+  PageDots,
+  RadialMenu,
+  StepProgress,
+  TabBar,
+  Tabs,
+  Text,
+  useTheme,
+} from 'penguin-ui';
 import { useState } from 'react';
 import { View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
@@ -163,6 +179,121 @@ function MenuOverlayDemo() {
   );
 }
 
+function RadialDemo() {
+  const theme = useTheme();
+  const [picked, setPicked] = useState('');
+  return (
+    <Col gap={14}>
+      <RadialMenu
+        onSelect={setPicked}
+        items={[
+          { key: 'like', label: 'Like', icon: 'heart' },
+          { key: 'share', label: 'Share', icon: 'share' },
+          { key: 'save', label: 'Save', icon: 'bookmark' },
+          { key: 'reply', label: 'Reply', icon: 'message' },
+        ]}
+      >
+        <View
+          style={{
+            width: 260,
+            height: 200,
+            borderRadius: 22,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: theme.colors.surfaceSunken,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+          }}
+        >
+          <Text variant="label">Press and hold anywhere</Text>
+          <Text variant="caption" tone="muted">
+            then slide toward an action
+          </Text>
+        </View>
+      </RadialMenu>
+      <Text variant="caption" tone="muted">
+        {picked ? `Chose ${picked}` : 'Nothing chosen yet'}
+      </Text>
+    </Col>
+  );
+}
+
+function OnboardingDemo() {
+  const theme = useTheme();
+  const [done, setDone] = useState(false);
+  const art = (name: 'sparkle' | 'bolt' | 'heart') => (
+    <View
+      style={{
+        width: 150,
+        height: 150,
+        borderRadius: 44,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: theme.colors.accentSoft,
+      }}
+    >
+      <Glyph name={name} size={64} color={theme.colors.accent} strokeWidth={1.5} />
+    </View>
+  );
+  return (
+    <View style={{ height: 520, alignSelf: 'stretch' }}>
+      {done ? (
+        <Col gap={12} style={{ flex: 1, justifyContent: 'center' }}>
+          <Text variant="title">You are in</Text>
+          <Button variant="secondary" size="sm" onPress={() => setDone(false)}>
+            Again
+          </Button>
+        </Col>
+      ) : (
+        <Onboarding
+          onDone={() => setDone(true)}
+          pages={[
+            { key: 'a', title: 'Feels alive', body: 'Every press moves something, on springs instead of timers.', art: art('sparkle') },
+            { key: 'b', title: 'Fast by default', body: 'Animation runs on the UI thread, so it keeps up with your finger.', art: art('bolt') },
+            { key: 'c', title: 'Made with care', body: 'Small details, planned one at a time, for phones.', art: art('heart') },
+          ]}
+        />
+      )}
+    </View>
+  );
+}
+
+function CollapsingDemo() {
+  return (
+    <View style={{ height: 480, alignSelf: 'stretch' }}>
+      <CollapsingHeader title="Library" subtitle="48 components">
+        <View style={{ paddingHorizontal: 20, gap: 10, paddingBottom: 40 }}>
+          {Array.from({ length: 14 }, (_, i) => (
+            <View
+              key={i}
+              style={{ height: 64, borderRadius: 16, backgroundColor: i % 2 ? '#EFEFF2' : '#F6F6F8', justifyContent: 'center', paddingHorizontal: 16 }}
+            >
+              <Text variant="label">Row {i + 1}</Text>
+            </View>
+          ))}
+        </View>
+      </CollapsingHeader>
+    </View>
+  );
+}
+
+function LiquidDemo() {
+  return (
+    <Col align="stretch" style={{ paddingHorizontal: 14, paddingTop: 60 }}>
+      <LiquidTabBar
+        items={[
+          { key: 'home', label: 'Home', icon: 'home' },
+          { key: 'search', label: 'Search', icon: 'search' },
+          { key: 'add', label: 'Create', icon: 'plus' },
+          { key: 'alerts', label: 'Alerts', icon: 'bell' },
+          { key: 'me', label: 'Profile', icon: 'user' },
+        ]}
+        defaultValue="search"
+      />
+    </Col>
+  );
+}
+
 export const navigation: Demo[] = [
   {
     id: 'tab-bar',
@@ -236,5 +367,48 @@ export const navigation: Demo[] = [
       'The hamburger turns into a cross while a circle grows from the button until it covers the screen. The links rise out of clipped boxes 60ms apart. Closing runs backwards, faster.',
     touch: 'Light haptic.',
     Component: MenuOverlayDemo,
+  },
+  {
+    id: 'radial-menu',
+    name: 'RadialMenu',
+    category: 'Navigation',
+    summary: 'Circular menu at the touch point.',
+    motion:
+      'Hold and the items fan out around the finger, leaving one after another, with the arc turning to stay on screen. Moving toward one grows it and gives it a label while the rest settle. Letting go chooses it.',
+    touch: 'Medium haptic on open, selection when the hovered item changes.',
+    layout: 'fill',
+    Component: RadialDemo,
+  },
+  {
+    id: 'onboarding',
+    name: 'Onboarding',
+    category: 'Navigation',
+    summary: 'Paged introduction.',
+    motion:
+      'Artwork, title and body each move at their own rate as the pages scroll, so the layers slide past each other. On the last page the round next button widens into a labelled call to action.',
+    touch: 'Light haptic on next, success on done.',
+    layout: 'fill',
+    Component: OnboardingDemo,
+  },
+  {
+    id: 'collapsing-header',
+    name: 'CollapsingHeader',
+    category: 'Navigation',
+    summary: 'Large title that folds into the bar.',
+    motion:
+      'The big title shrinks and rises toward the bar while a small centred title fades in as it leaves, and a hairline appears once content scrolls beneath. Pulling down past the top stretches the title.',
+    layout: 'fill',
+    Component: CollapsingDemo,
+  },
+  {
+    id: 'liquid-tab-bar',
+    name: 'LiquidTabBar',
+    category: 'Navigation',
+    summary: 'Tab bar with a travelling notch.',
+    motion:
+      'The bar\'s top edge dips to cradle the chosen tab. The dip is a real cut in the outline that follows the tab on a spring, flattening a little in transit, while the tab\'s icon leaves the bar and rises into a circle in the dip.',
+    touch: 'Selection haptic.',
+    layout: 'fill',
+    Component: LiquidDemo,
   },
 ];
