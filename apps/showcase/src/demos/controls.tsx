@@ -1,4 +1,4 @@
-import { Checkbox, SegmentedControl, Switch, Text } from 'penguin-ui';
+import { Checkbox, Knob, SegmentedControl, Switch, Text, ThemeToggle } from 'penguin-ui';
 import { useState } from 'react';
 
 import { Col, Row } from './kit';
@@ -44,6 +44,26 @@ function SegmentedDemo() {
   );
 }
 
+function ThemeToggleDemo() {
+  const [dark, setDark] = useState(false);
+  return (
+    <Col gap={18}>
+      <ThemeToggle value={dark} onChange={setDark} size={72} />
+      <Text variant="caption" tone="muted">
+        {dark ? 'Dark' : 'Light'}
+      </Text>
+    </Col>
+  );
+}
+
+function KnobDemo() {
+  return (
+    <Col gap={8}>
+      <Knob defaultValue={64} label="Volume" />
+    </Col>
+  );
+}
+
 export const controls: Demo[] = [
   {
     id: 'switch',
@@ -76,5 +96,25 @@ export const controls: Demo[] = [
     touch: 'Selection haptic per segment.',
     layout: 'fill',
     Component: SegmentedDemo,
+  },
+  {
+    id: 'theme-toggle',
+    name: 'ThemeToggle',
+    category: 'Controls',
+    summary: 'Light and dark switch.',
+    motion:
+      'The sun is one shape driven by one value. Its rays pull in toward the core while a disc slides across and leaves a crescent, with a quarter turn of rotation. Stopping halfway looks like an eclipse.',
+    touch: 'Light haptic.',
+    Component: ThemeToggleDemo,
+  },
+  {
+    id: 'knob',
+    name: 'Knob',
+    category: 'Controls',
+    summary: 'Rotary dial.',
+    motion:
+      'A ring of ticks fills up to the current value and the tick at the value stands taller than its neighbours. The number rolls in the centre. Drag up to turn it up and down to turn it down.',
+    touch: 'Selection tick per step.',
+    Component: KnobDemo,
   },
 ];

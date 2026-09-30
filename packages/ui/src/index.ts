@@ -68,3 +68,5 @@ export * from './components/inputs/TagInput';
 export * from './components/controls/Switch';
 export * from './components/controls/Checkbox';
 export * from './components/controls/SegmentedControl';
+export * from './components/controls/ThemeToggle';
+export * from './components/controls/Knob';
