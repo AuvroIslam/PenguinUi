@@ -73,3 +73,10 @@ export * from './components/controls/Knob';
 export * from './components/controls/RadioGroup';
 export * from './components/controls/ChipGroup';
 export * from './components/controls/PlanPicker';
+
+// Navigation
+export * from './components/navigation/TabBar';
+export * from './components/navigation/Tabs';
+export * from './components/navigation/PageDots';
+export * from './components/navigation/StepProgress';
+export * from './components/navigation/Dock';
