@@ -54,3 +54,5 @@ export * from './components/inputs/PasswordField';
 export * from './components/inputs/Stepper';
 export * from './components/inputs/OTPInput';
 export * from './components/inputs/PinPad';
+export * from './components/inputs/Slider';
+export * from './components/inputs/RangeSlider';

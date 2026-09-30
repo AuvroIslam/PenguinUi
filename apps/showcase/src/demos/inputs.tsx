@@ -1,4 +1,4 @@
-import { Glyph, OTPInput, PasswordField, PinPad, Stepper, Text, TextField, useTheme, type OTPStatus } from 'penguin-ui';
+import { Glyph, OTPInput, PasswordField, PinPad, RangeSlider, Slider, Stepper, Text, TextField, useTheme, type OTPStatus } from 'penguin-ui';
 import { useState } from 'react';
 
 import { Col } from './kit';
@@ -94,6 +94,23 @@ function PinPadDemo() {
   );
 }
 
+function SliderDemo() {
+  return (
+    <Col align="stretch" gap={28} style={{ paddingHorizontal: 28, paddingTop: 16 }}>
+      <Slider defaultValue={35} label="Volume" />
+      <Slider defaultValue={4} min={0} max={10} step={1} format={(n) => `${n}/10`} label="Rating" />
+    </Col>
+  );
+}
+
+function RangeSliderDemo() {
+  return (
+    <Col align="stretch" gap={28} style={{ paddingHorizontal: 28, paddingTop: 16 }}>
+      <RangeSlider defaultValue={[20, 65]} minGap={10} label="Price" format={(n) => `$${n}`} />
+    </Col>
+  );
+}
+
 export const inputs: Demo[] = [
   {
     id: 'text-field',
@@ -146,5 +163,27 @@ export const inputs: Demo[] = [
       'Dots fill with a pop. A wrong PIN shakes the row and empties the dots left to right. A correct PIN lifts them in a wave.',
     touch: 'Light haptic per key, notification on the result.',
     Component: PinPadDemo,
+  },
+  {
+    id: 'slider',
+    name: 'Slider',
+    category: 'Inputs',
+    summary: 'Single-value slider.',
+    motion:
+      'The thumb grows while held and a value bubble springs up and leans against the direction of travel. Dragging past either end stretches the track like a rubber band, then it snaps back.',
+    touch: 'Selection tick on every step.',
+    layout: 'fill',
+    Component: SliderDemo,
+  },
+  {
+    id: 'range-slider',
+    name: 'RangeSlider',
+    category: 'Inputs',
+    summary: 'Two-thumb range.',
+    motion:
+      'The nearer thumb follows the finger and a bubble rides it. The thumbs push against each other and stop at a minimum gap, and when they meet the selection squeezes and rebounds.',
+    touch: 'Selection tick per step, a rigid tap when the thumbs meet.',
+    layout: 'fill',
+    Component: RangeSliderDemo,
   },
 ];
