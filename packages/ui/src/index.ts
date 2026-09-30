@@ -63,3 +63,8 @@ export * from './components/inputs/SearchBar';
 export * from './components/inputs/PromptInput';
 export * from './components/inputs/AmountInput';
 export * from './components/inputs/TagInput';
+
+// Selection and controls
+export * from './components/controls/Switch';
+export * from './components/controls/Checkbox';
+export * from './components/controls/SegmentedControl';
