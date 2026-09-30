@@ -18,6 +18,7 @@ export * from './primitives/ArcSpinner';
 export * from './utils/color';
 export * from './utils/layout';
 export * from './utils/useControllable';
+export * from './motion/shake';
 
 // Actions
 export * from './components/actions/Button';
@@ -46,3 +47,10 @@ export * from './components/text/FlipText';
 export * from './components/text/SpinningText';
 export * from './components/text/Marquee';
 export * from './components/text/HighlightText';
+
+// Inputs
+export * from './components/inputs/TextField';
+export * from './components/inputs/PasswordField';
+export * from './components/inputs/Stepper';
+export * from './components/inputs/OTPInput';
+export * from './components/inputs/PinPad';
