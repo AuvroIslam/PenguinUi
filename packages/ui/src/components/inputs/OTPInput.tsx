@@ -208,5 +208,5 @@ const styles = StyleSheet.create({
   ring: { borderWidth: 1.5 },
   caret: { position: 'absolute', width: 2, height: 24, borderRadius: 1 },
   // Invisible but on top, so a tap anywhere in the row focuses it.
-  hidden: { opacity: 0.02, color: 'transparent' },
+  hidden: { opacity: 0, color: 'transparent', fontSize: 1 },
 });
