@@ -80,3 +80,5 @@ export * from './components/navigation/Tabs';
 export * from './components/navigation/PageDots';
 export * from './components/navigation/StepProgress';
 export * from './components/navigation/Dock';
+export * from './components/navigation/ContextMenu';
+export * from './components/navigation/MenuOverlay';

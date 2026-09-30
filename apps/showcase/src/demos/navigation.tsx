@@ -1,4 +1,4 @@
-import { Button, Dock, PageDots, StepProgress, TabBar, Tabs, Text } from 'penguin-ui';
+import { Button, ContextMenu, Dock, MenuOverlay, PageDots, StepProgress, TabBar, Tabs, Text, useTheme } from 'penguin-ui';
 import { useState } from 'react';
 import { View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
@@ -104,6 +104,65 @@ function DockDemo() {
   );
 }
 
+function ContextMenuDemo() {
+  const theme = useTheme();
+  const [picked, setPicked] = useState('');
+  return (
+    <Col gap={18} style={{ paddingTop: 30 }}>
+      <ContextMenu
+        onSelect={setPicked}
+        items={[
+          { key: 'share', label: 'Share', icon: 'share' },
+          { key: 'save', label: 'Save', icon: 'bookmark' },
+          { key: 'copy', label: 'Copy link', icon: 'copy' },
+          { key: 'delete', label: 'Delete', icon: 'trash', destructive: true },
+        ]}
+      >
+        <View
+          style={{
+            width: 240,
+            padding: 18,
+            gap: 6,
+            borderRadius: 22,
+            backgroundColor: theme.colors.surface,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            boxShadow: theme.shadows.md,
+          }}
+        >
+          <Text variant="heading">Spring physics</Text>
+          <Text variant="caption" tone="muted">
+            Press and hold this card.
+          </Text>
+        </View>
+      </ContextMenu>
+      <Text variant="caption" tone="muted">
+        {picked ? `Chose ${picked}` : 'Nothing chosen yet'}
+      </Text>
+    </Col>
+  );
+}
+
+function MenuOverlayDemo() {
+  const [last, setLast] = useState('');
+  return (
+    <Col gap={14}>
+      <MenuOverlay
+        onSelect={setLast}
+        links={[
+          { key: 'work', label: 'Work' },
+          { key: 'about', label: 'About' },
+          { key: 'journal', label: 'Journal' },
+          { key: 'contact', label: 'Contact' },
+        ]}
+      />
+      <Text variant="caption" tone="muted">
+        {last ? `Went to ${last}` : 'Tap the button'}
+      </Text>
+    </Col>
+  );
+}
+
 export const navigation: Demo[] = [
   {
     id: 'tab-bar',
@@ -156,5 +215,26 @@ export const navigation: Demo[] = [
     touch: 'Selection haptic each time the nearest icon changes.',
     layout: 'fill',
     Component: DockDemo,
+  },
+  {
+    id: 'context-menu',
+    name: 'ContextMenu',
+    category: 'Navigation',
+    summary: 'Long-press menu.',
+    motion:
+      'Pressing lifts the item toward you. Past the hold the backdrop dims and the menu scales out from the item\'s own corner, its rows arriving one after another. Slide across the rows and let go to pick.',
+    touch: 'Medium haptic on open, selection while sliding across rows.',
+    layout: 'fill',
+    Component: ContextMenuDemo,
+  },
+  {
+    id: 'menu-overlay',
+    name: 'MenuOverlay',
+    category: 'Navigation',
+    summary: 'Full-screen menu that opens out of its button.',
+    motion:
+      'The hamburger turns into a cross while a circle grows from the button until it covers the screen. The links rise out of clipped boxes 60ms apart. Closing runs backwards, faster.',
+    touch: 'Light haptic.',
+    Component: MenuOverlayDemo,
   },
 ];
