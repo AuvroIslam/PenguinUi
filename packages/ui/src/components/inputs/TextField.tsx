@@ -25,7 +25,7 @@ import { springs } from '../../motion/tokens';
 import { Text } from '../../primitives/Text';
 import { useTheme } from '../../theme/ThemeProvider';
 import { fontFor, typeStyle } from '../../theme/tokens';
-import { bareInput, fill } from '../../utils/layout';
+import { bareInput, fill, passThrough } from '../../utils/layout';
 
 export type TextFieldProps = Omit<TextInputProps, 'style' | 'placeholder'> & {
   label: string;
@@ -125,14 +125,12 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
         ]}
       >
         <Animated.View
-          pointerEvents="none"
-          style={[fill, styles.ring, { borderRadius: theme.radii.md }, ringStyle]}
+          style={[fill, passThrough, styles.ring, { borderRadius: theme.radii.md }, ringStyle]}
         />
         {leading ? <View style={styles.leading}>{leading}</View> : null}
         <Animated.View
-          pointerEvents="none"
           onLayout={(e) => setLabelWidth(e.nativeEvent.layout.width)}
-          style={[styles.label, { left: inset }, labelStyle]}
+          style={[styles.label, passThrough, { left: inset }, labelStyle]}
         >
           <Text variant="body" numberOfLines={1} style={{ color: labelColor }}>
             {label}

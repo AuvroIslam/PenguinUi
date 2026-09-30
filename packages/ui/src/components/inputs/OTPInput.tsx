@@ -15,7 +15,7 @@ import { useShake } from '../../motion/shake';
 import { springs } from '../../motion/tokens';
 import { Text } from '../../primitives/Text';
 import { useTheme } from '../../theme/ThemeProvider';
-import { bareInput, fill } from '../../utils/layout';
+import { bareInput, fill, passThrough } from '../../utils/layout';
 import { useControllable } from '../../utils/useControllable';
 
 export type OTPStatus = 'idle' | 'error' | 'success';
@@ -105,15 +105,14 @@ function Cell({ char, index, active, status }: CellProps) {
       ]}
     >
       <Animated.View
-        pointerEvents="none"
-        style={[fill, styles.ring, { borderColor: tone, borderRadius: theme.radii.md }, ringStyle]}
+        style={[fill, passThrough, styles.ring, { borderColor: tone, borderRadius: theme.radii.md }, ringStyle]}
       />
       <Animated.View style={digit}>
         <Text variant="title" mono>
           {char}
         </Text>
       </Animated.View>
-      <Animated.View pointerEvents="none" style={[styles.caret, { backgroundColor: c.accent }, caretStyle]} />
+      <Animated.View style={[passThrough, styles.caret, { backgroundColor: c.accent }, caretStyle]} />
     </Animated.View>
   );
 }

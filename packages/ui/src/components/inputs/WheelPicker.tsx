@@ -40,7 +40,8 @@ type RowProps = {
   height: number;
   scrollY: SharedValue<number>;
   selected: boolean;
-  onPress: () => void;
+  /** Stable across renders, so turning the wheel re-renders only the rows whose selection changed. */
+  onPress: (index: number) => void;
 };
 
 const Row = memo(function Row({ label, index, height, scrollY, selected, onPress }: RowProps) {
@@ -64,7 +65,7 @@ const Row = memo(function Row({ label, index, height, scrollY, selected, onPress
   });
 
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" accessibilityState={{ selected }}>
+    <Pressable onPress={() => onPress(index)} accessibilityRole="button" accessibilityState={{ selected }}>
       <Animated.View style={[styles.row, { height }, animated]}>
         <Text variant="heading" weight="medium" numberOfLines={1}>
           {label}
@@ -109,17 +110,16 @@ export function WheelPicker<T extends string | number = string>({
   const height = itemHeight * visible;
   const pad = (itemHeight * (visible - 1)) / 2;
 
+  const rowsRef = useRef(rows);
+  rowsRef.current = rows;
   const commit = useCallback(
     (index: number) => {
       haptic('selection');
-      const next = rows[index];
+      const next = rowsRef.current[index];
       if (next) setValue(next.value);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [rows.length, setValue],
+    [setValue],
   );
-  const rowsRef = useRef(rows);
-  rowsRef.current = rows;
 
   const handler = useAnimatedScrollHandler((e) => {
     scrollY.value = e.contentOffset.y;
@@ -137,7 +137,18 @@ export function WheelPicker<T extends string | number = string>({
     ref.current?.scrollTo({ y: selectedIndex * itemHeight, animated: true });
   }, [selectedIndex, itemHeight, lastIndex, ref]);
 
-  const turnTo = (index: number) => ref.current?.scrollTo({ y: index * itemHeight, animated: true });
+  const turnTo = useCallback(
+    (index: number) => ref.current?.scrollTo({ y: index * itemHeight, animated: true }),
+    [ref, itemHeight],
+  );
+
+  // `contentOffset` is not honoured on every platform, so the first position is also set by hand.
+  const placed = useRef(false);
+  const place = () => {
+    if (placed.current) return;
+    placed.current = true;
+    ref.current?.scrollTo({ y: selectedIndex * itemHeight, animated: false });
+  };
 
   return (
     <View
@@ -150,7 +161,6 @@ export function WheelPicker<T extends string | number = string>({
     >
       {/* The selection band sits behind the rows so the centred row reads as inside it. */}
       <View
-        pointerEvents="none"
         style={[
           styles.band,
           {
@@ -169,6 +179,7 @@ export function WheelPicker<T extends string | number = string>({
         snapToInterval={itemHeight}
         decelerationRate="fast"
         contentOffset={{ x: 0, y: selectedIndex * itemHeight }}
+        onLayout={place}
         contentContainerStyle={{ paddingVertical: pad }}
         overScrollMode="never"
         bounces={false}
@@ -181,7 +192,7 @@ export function WheelPicker<T extends string | number = string>({
             height={itemHeight}
             scrollY={scrollY}
             selected={i === selectedIndex}
-            onPress={() => turnTo(i)}
+            onPress={turnTo}
           />
         ))}
       </Animated.ScrollView>
@@ -195,6 +206,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: StyleSheet.hairlineWidth,
   },
-  band: { position: 'absolute', left: 8, right: 8 },
+  band: { position: 'absolute', left: 8, right: 8, pointerEvents: 'none' },
   row: { alignItems: 'center', justifyContent: 'center' },
 });

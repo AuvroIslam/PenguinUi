@@ -14,8 +14,9 @@ import { scheduleOnRN } from 'react-native-worklets';
 import { haptic } from '../../motion/haptics';
 import { springs } from '../../motion/tokens';
 import { PressableScale } from '../../primitives/PressableScale';
-import { Text } from '../../primitives/Text';
+import { TextMorph } from '../text/TextMorph';
 import { useTheme } from '../../theme/ThemeProvider';
+import { fontFor } from '../../theme/tokens';
 import { useControllable } from '../../utils/useControllable';
 
 export type DateStripProps = {
@@ -73,10 +74,10 @@ const Cell = memo(function Cell({ date, index, width, pill, today, onPress }: Ce
       accessibilityLabel={`${DAYS[date.getDay()]} ${date.getDate()} ${MONTHS[date.getMonth()]}`}
       style={[styles.cell, { width }]}
     >
-      <Animated.Text style={[styles.day, label, { fontFamily: theme.fonts.medium }]}>
+      <Animated.Text style={[styles.day, fontFor(theme, 'medium'), label]}>
         {DAYS[date.getDay()].toUpperCase()}
       </Animated.Text>
-      <Animated.Text style={[styles.date, number, { fontFamily: theme.fonts.semibold }]}>
+      <Animated.Text style={[styles.date, fontFor(theme, 'semibold'), number]}>
         {date.getDate()}
       </Animated.Text>
       <View style={[styles.dot, { backgroundColor: today ? c.accent : 'transparent' }]} />
@@ -156,7 +157,7 @@ export function DateStrip({
   return (
     <View style={[styles.wrap, style]}>
       <View style={styles.header}>
-        <Text variant="heading">{heading}</Text>
+        <TextMorph variant="heading">{heading}</TextMorph>
       </View>
       <GestureDetector gesture={pan}>
         <View
@@ -168,7 +169,6 @@ export function DateStrip({
         >
           {cell > 0 ? (
             <Animated.View
-              pointerEvents="none"
               style={[
                 styles.pill,
                 { width: cell, backgroundColor: c.primary, borderRadius: theme.radii.md },
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
   wrap: { alignSelf: 'stretch', gap: 12 },
   header: { paddingHorizontal: 6 },
   strip: { height: CELL_HEIGHT + 8, padding: 4, borderWidth: StyleSheet.hairlineWidth },
-  pill: { position: 'absolute', top: 4, left: 4, height: CELL_HEIGHT },
+  pill: { position: 'absolute', top: 4, left: 4, height: CELL_HEIGHT, pointerEvents: 'none' },
   days: { flexDirection: 'row' },
   cell: { height: CELL_HEIGHT, alignItems: 'center', justifyContent: 'center', gap: 2 },
   day: { fontSize: 11, letterSpacing: 0.6 },

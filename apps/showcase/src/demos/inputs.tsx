@@ -1,5 +1,5 @@
-import { DateStrip, Glyph, OTPInput, PasswordField, PinPad, RangeSlider, RatingInput, Slider, WheelPicker, Stepper, Text, TextField, useTheme, type OTPStatus } from 'penguin-ui';
-import { useState } from 'react';
+import { DateStrip, Glyph, OTPInput, PasswordField, PinPad, PromptInput, RangeSlider, SearchBar, RatingInput, Slider, WheelPicker, Stepper, Text, TextField, useTheme, type OTPStatus } from 'penguin-ui';
+import { useRef, useState } from 'react';
 import { View } from 'react-native';
 
 import { Col } from './kit';
@@ -150,6 +150,37 @@ function DateStripDemo() {
   );
 }
 
+function SearchBarDemo() {
+  return (
+    <Col align="stretch" style={{ paddingHorizontal: 20, paddingTop: 12 }}>
+      <SearchBar placeholders={['Search components', 'Try "slider"', 'Try "otp"', 'Try "date"']} />
+    </Col>
+  );
+}
+
+function PromptDemo() {
+  const [loading, setLoading] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  return (
+    <Col align="stretch" style={{ paddingHorizontal: 20, paddingTop: 12 }}>
+      <PromptInput
+        loading={loading}
+        placeholder="Ask the penguin anything"
+        onSubmit={() => {
+          setLoading(true);
+          timer.current = setTimeout(() => setLoading(false), 6000);
+        }}
+        onStop={() => {
+          clearTimeout(timer.current);
+          setLoading(false);
+        }}
+        onMic={() => {}}
+      />
+    </Col>
+  );
+}
+
 export const inputs: Demo[] = [
   {
     id: 'text-field',
@@ -256,5 +287,27 @@ export const inputs: Demo[] = [
     touch: 'Selection haptic on a day, light haptic when the week turns.',
     layout: 'fill',
     Component: DateStripDemo,
+  },
+  {
+    id: 'search-bar',
+    name: 'SearchBar',
+    category: 'Inputs',
+    summary: 'Search that starts as a button.',
+    motion:
+      'A circle grows into the full field on a heavy spring while Cancel slides in from the edge. The placeholder leafs through suggestions until something is typed. Cancel reverses all of it.',
+    touch: 'Light haptic on open, selection haptic on cancel and clear.',
+    layout: 'fill',
+    Component: SearchBarDemo,
+  },
+  {
+    id: 'prompt-input',
+    name: 'PromptInput',
+    category: 'Inputs',
+    summary: 'AI prompt composer.',
+    motion:
+      'The field grows a line at a time on a spring. The action button turns between a microphone, a send arrow and a stop square as the state changes. While loading, a comet of light runs around the border.',
+    touch: 'Light haptic on send, medium on stop.',
+    layout: 'fill',
+    Component: PromptDemo,
   },
 ];

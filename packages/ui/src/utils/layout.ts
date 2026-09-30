@@ -12,6 +12,9 @@ export const fill = {
   bottom: 0,
 } as const;
 
+/** Lets touches fall through a view to whatever is beneath it. */
+export const passThrough = { pointerEvents: 'none' } as const;
+
 /** Clamps on the JS or UI thread. */
 export function clamp(value: number, min: number, max: number): number {
   'worklet';

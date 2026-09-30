@@ -59,3 +59,5 @@ export * from './components/inputs/RangeSlider';
 export * from './components/inputs/WheelPicker';
 export * from './components/inputs/RatingInput';
 export * from './components/inputs/DateStrip';
+export * from './components/inputs/SearchBar';
+export * from './components/inputs/PromptInput';

@@ -12,7 +12,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 import { haptic } from '../../motion/haptics';
 import { springs } from '../../motion/tokens';
 import { useTheme } from '../../theme/ThemeProvider';
-import { clamp } from '../../utils/layout';
+import { clamp, passThrough } from '../../utils/layout';
 import { useControllable } from '../../utils/useControllable';
 import { RollingNumber } from '../text/RollingNumber';
 
@@ -205,9 +205,9 @@ export function Slider({
           </Animated.View>
 
           <Animated.View
-            pointerEvents="none"
             style={[
               styles.thumb,
+              passThrough,
               { backgroundColor: c.surface, borderColor: c.borderStrong, boxShadow: theme.shadows.md },
               thumbStyle,
             ]}
@@ -216,7 +216,7 @@ export function Slider({
           </Animated.View>
 
           {bubble ? (
-            <Animated.View pointerEvents="none" style={[styles.bubbleSlot, bubbleStyle]}>
+            <Animated.View style={[styles.bubbleSlot, passThrough, bubbleStyle]}>
               <View style={[styles.bubble, { backgroundColor: c.primary, borderRadius: theme.radii.sm }]}>
                 <RollingNumber
                   value={value}

@@ -16,6 +16,7 @@ import { PressableScale } from '../../primitives/PressableScale';
 import { Text } from '../../primitives/Text';
 import { useTheme } from '../../theme/ThemeProvider';
 import { TextMorph } from '../text/TextMorph';
+import { passThrough } from '../../utils/layout';
 import { TextField, type TextFieldProps } from './TextField';
 
 export type PasswordFieldProps = Omit<TextFieldProps, 'trailing' | 'leading' | 'secureTextEntry'> & {
@@ -87,7 +88,7 @@ function VisibilityToggle({ hidden, onToggle }: { hidden: boolean; onToggle: () 
       style={styles.eye}
     >
       <Glyph name="eye" size={22} color={tint} />
-      <View style={styles.strike} pointerEvents="none">
+      <View style={[styles.strike, passThrough]}>
         <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
           <DrawnStroke d={SLASH} length={22.7} progress={strike} color={tint} strokeWidth={1.75} />
         </Svg>
@@ -142,7 +143,7 @@ export function PasswordField({
         trailing={<VisibilityToggle hidden={hidden} onToggle={() => setHidden((h) => !h)} />}
       />
       {strength ? (
-        <Animated.View style={[styles.meter, rest.error ? null : styles.meterTucked, meterStyle]} pointerEvents="none">
+        <Animated.View style={[styles.meter, passThrough, rest.error ? null : styles.meterTucked, meterStyle]}>
           <View style={styles.segments}>
             {[1, 2, 3, 4].map((n) => (
               <Segment key={n} on={score >= n} color={color} index={n - 1} />

@@ -15,7 +15,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 import { haptic } from '../../motion/haptics';
 import { springs } from '../../motion/tokens';
 import { useTheme } from '../../theme/ThemeProvider';
-import { clamp } from '../../utils/layout';
+import { clamp, passThrough } from '../../utils/layout';
 import { useControllable } from '../../utils/useControllable';
 import { RollingNumber } from '../text/RollingNumber';
 
@@ -60,9 +60,9 @@ function RangeThumb({ pos, index, grabbed, active }: PartProps) {
 
   return (
     <Animated.View
-      pointerEvents="none"
       style={[
         styles.thumb,
+        passThrough,
         { backgroundColor: c.surface, borderColor: c.borderStrong, boxShadow: theme.shadows.md },
         animated,
       ]}
@@ -95,7 +95,7 @@ function RangeBubble({
   });
 
   return (
-    <Animated.View pointerEvents="none" style={[styles.bubbleSlot, animated]}>
+    <Animated.View style={[styles.bubbleSlot, passThrough, animated]}>
       <View style={[styles.bubble, { backgroundColor: c.primary, borderRadius: theme.radii.sm }]}>
         <RollingNumber value={value} format={format} group={false} variant="label" tone="onPrimary" />
       </View>
@@ -243,8 +243,7 @@ export function RangeSlider({
             ]}
           />
           <Animated.View
-            pointerEvents="none"
-            style={[styles.fill, { backgroundColor: c.accent }, fillStyle]}
+            style={[styles.fill, passThrough, { backgroundColor: c.accent }, fillStyle]}
           />
           <RangeThumb pos={lo} index={0} grabbed={grabbed} active={active} />
           <RangeThumb pos={hi} index={1} grabbed={grabbed} active={active} />
