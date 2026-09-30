@@ -1,4 +1,4 @@
-import { DateStrip, Glyph, OTPInput, PasswordField, PinPad, PromptInput, RangeSlider, SearchBar, RatingInput, Slider, WheelPicker, Stepper, Text, TextField, useTheme, type OTPStatus } from 'penguin-ui';
+import { AmountInput, DateStrip, TagInput, Glyph, OTPInput, PasswordField, PinPad, PromptInput, RangeSlider, SearchBar, RatingInput, Slider, WheelPicker, Stepper, Text, TextField, useTheme, type OTPStatus } from 'penguin-ui';
 import { useRef, useState } from 'react';
 import { View } from 'react-native';
 
@@ -181,6 +181,25 @@ function PromptDemo() {
   );
 }
 
+function AmountDemo() {
+  return (
+    <Col align="stretch" style={{ paddingTop: 8 }}>
+      <AmountInput defaultValue="1250" max={1000000} />
+    </Col>
+  );
+}
+
+function TagDemo() {
+  return (
+    <Col align="stretch" style={{ paddingHorizontal: 20, paddingTop: 12 }} gap={10}>
+      <TagInput defaultValue={['motion', 'haptics']} placeholder="Add a tag and press return" />
+      <Text variant="caption" tone="muted">
+        Type a word and press return or a comma. Backspace twice removes the last tag.
+      </Text>
+    </Col>
+  );
+}
+
 export const inputs: Demo[] = [
   {
     id: 'text-field',
@@ -309,5 +328,27 @@ export const inputs: Demo[] = [
     touch: 'Light haptic on send, medium on stop.',
     layout: 'fill',
     Component: PromptDemo,
+  },
+  {
+    id: 'amount-input',
+    name: 'AmountInput',
+    category: 'Inputs',
+    summary: 'Large currency amount with its own keypad.',
+    motion:
+      'Digits rise in from below as they are typed and drop out when deleted, and the row reflows on a spring. The amount scales down to stay on one line. A key that would make the value invalid shakes it.',
+    touch: 'Light haptic per key, warning when a key is refused.',
+    layout: 'fill',
+    Component: AmountDemo,
+  },
+  {
+    id: 'tag-input',
+    name: 'TagInput',
+    category: 'Inputs',
+    summary: 'Free-text tags.',
+    motion:
+      'A committed tag pops in on a bouncy spring and its neighbours slide over. Backspace on an empty field first wiggles the last tag and turns it red, and a second backspace removes it. A refused tag shakes the field.',
+    touch: 'Light haptic on commit, selection on arming, medium on delete.',
+    layout: 'fill',
+    Component: TagDemo,
   },
 ];

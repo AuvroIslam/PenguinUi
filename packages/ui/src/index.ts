@@ -61,3 +61,5 @@ export * from './components/inputs/RatingInput';
 export * from './components/inputs/DateStrip';
 export * from './components/inputs/SearchBar';
 export * from './components/inputs/PromptInput';
+export * from './components/inputs/AmountInput';
+export * from './components/inputs/TagInput';
