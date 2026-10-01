@@ -199,8 +199,8 @@ function CopyButtonDemo() {
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 12,
-          paddingLeft: 16,
+          gap: 8,
+          paddingLeft: 14,
           paddingRight: 6,
           height: 50,
           borderRadius: 25,
@@ -209,7 +209,8 @@ function CopyButtonDemo() {
           borderColor: theme.colors.border,
         }}
       >
-        <Text mono variant="caption">
+        {/* One line, even on the narrowest phones: a command split mid-word reads as broken. */}
+        <Text mono variant="caption" numberOfLines={1} style={{ flexShrink: 1 }}>
           npm i penguin-ui
         </Text>
         <CopyButton onCopy={() => {}} />

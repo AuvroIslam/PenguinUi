@@ -36,18 +36,20 @@ const PLAY: [Quad, Quad] = [
     [13.5, 15.7],
   ],
 ];
+// The rounding stroke adds a unit on every side, so the bars are drawn 5 apart to leave a
+// visible gap of 3 between them; any closer and they read as one block at small sizes.
 const PAUSE: [Quad, Quad] = [
   [
     [6.5, 5.5],
-    [10.5, 5.5],
-    [10.5, 18.5],
+    [9.5, 5.5],
+    [9.5, 18.5],
     [6.5, 18.5],
   ],
   [
-    [13.5, 5.5],
+    [14.5, 5.5],
     [17.5, 5.5],
     [17.5, 18.5],
-    [13.5, 18.5],
+    [14.5, 18.5],
   ],
 ];
 

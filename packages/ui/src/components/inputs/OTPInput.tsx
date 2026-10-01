@@ -70,7 +70,8 @@ function Cell({ char, index, active, status }: CellProps) {
         -1,
       );
     } else {
-      caret.value = withTiming(0, { duration: 80 });
+      // Out at once, like its blink, so the caret is never in two cells at the same time.
+      caret.value = 0;
     }
   }, [active, char, caret]);
 
@@ -196,9 +197,11 @@ export function OTPInput({
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: 8, alignSelf: 'center' },
+  // Never wider than its container: on a narrow screen the cells give up width instead.
+  row: { flexDirection: 'row', gap: 8, alignSelf: 'center', maxWidth: '100%' },
   cell: {
     width: 46,
+    flexShrink: 1,
     height: 56,
     alignItems: 'center',
     justifyContent: 'center',

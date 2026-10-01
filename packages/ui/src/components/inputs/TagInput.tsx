@@ -195,6 +195,8 @@ export function TagInput({
         haptic={false}
         scaleTo={1}
         accessible={false}
+        // Not a button: the tags inside hold real buttons, and on the web a button cannot nest.
+        accessibilityRole="none"
         style={[
           styles.field,
           { backgroundColor: c.surface, borderColor: c.border, borderRadius: theme.radii.lg },
@@ -236,7 +238,8 @@ export function TagInput({
             selectionColor={c.accent}
             cursorColor={c.accent}
             accessibilityLabel={placeholder}
-            style={[bareInput, typeStyle(theme, 'body'), fontFor(theme, 'regular'), styles.input, { color: c.text }]}
+            // Padding stays inline, where the web's inline `bareInput` cannot override it.
+            style={[bareInput, typeStyle(theme, 'body'), fontFor(theme, 'regular'), styles.input, { color: c.text, paddingHorizontal: 6 }]}
           />
         </Animated.View>
       </PressableScale>
@@ -267,5 +270,5 @@ const styles = StyleSheet.create({
   },
   remove: { width: 20, height: 20, alignItems: 'center', justifyContent: 'center' },
   inputSlot: { flexGrow: 1, minWidth: 96 },
-  input: { height: 34, paddingHorizontal: 6 },
+  input: { height: 34 },
 });

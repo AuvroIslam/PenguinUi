@@ -27,7 +27,7 @@ export type VoiceRecordButtonProps = {
   onStart?: () => void;
   /** Called with the length in milliseconds when the finger lifts normally. */
   onSend: (durationMs: number) => void;
-  /** Called when the recording is thrown away by sliding to cancel. */
+  /** Called when the recording is thrown away: slid to cancel, or let go too soon to be a message. */
   onCancel?: () => void;
   /** Live input level from 0 to 1. Without it, the rings breathe on their own. */
   level?: SharedValue<number>;
@@ -37,6 +37,8 @@ export type VoiceRecordButtonProps = {
 const SIZE = 52;
 /** How far left the finger must travel to discard, as a share of the tray's width. */
 const CANCEL_SHARE = 0.4;
+/** A release sooner than this is a tap, not a message, so nothing is sent. */
+const MIN_MS = 500;
 
 function Ring({ index, active, level }: { index: number; active: SharedValue<number>; level?: SharedValue<number> }) {
   const theme = useTheme();
@@ -63,7 +65,8 @@ function Ring({ index, active, level }: { index: number; active: SharedValue<num
  * Hold to record a voice message. Pressing grows the button and sets rings pulsing out of it,
  * sized by the input level when one is given. A timer counts up beside it. Slide left and a
  * cancel target is uncovered; slide far enough and the recording is thrown away, the button
- * shrinking back as the bin gives a little jump. Lifting anywhere else sends it.
+ * shrinking back as the bin gives a little jump. Lifting anywhere else sends it, unless the
+ * press was only a tap, which is discarded instead of sending an empty message.
  */
 export function VoiceRecordButton({ onStart, onSend, onCancel, level, style }: VoiceRecordButtonProps) {
   const theme = useTheme();
@@ -77,6 +80,8 @@ export function VoiceRecordButton({ onStart, onSend, onCancel, level, style }: V
   const cancelled = useSharedValue(false);
   const bin = useSharedValue(1);
   const [trayWidth, setTrayWidth] = useState(240);
+  const [hintRoom, setHintRoom] = useState(0);
+  const [hintNeed, setHintNeed] = useState(0);
   const cancelAt = trayWidth * CANCEL_SHARE;
 
   useEffect(() => {
@@ -94,13 +99,10 @@ export function VoiceRecordButton({ onStart, onSend, onCancel, level, style }: V
   };
   const finish = (cancel: boolean) => {
     setRecording(false);
-    if (cancel) {
-      haptic('light');
-      onCancel?.();
-    } else {
-      haptic('light');
-      onSend(Date.now() - startedAt.current);
-    }
+    const duration = Date.now() - startedAt.current;
+    haptic('light');
+    if (cancel || duration < MIN_MS) onCancel?.();
+    else onSend(duration);
   };
 
   const gesture = Gesture.Pan()
@@ -161,8 +163,12 @@ export function VoiceRecordButton({ onStart, onSend, onCancel, level, style }: V
         <Text variant="label" mono>
           {time}
         </Text>
-        <Animated.View style={[styles.hint, hint]}>
-          <TextShimmer variant="caption">‹  Slide to cancel</TextShimmer>
+        <Animated.View style={[styles.hint, hint]} onLayout={(e) => setHintRoom(e.nativeEvent.layout.width)}>
+          {/* Kept on one line at its natural width. On a tray too narrow to hold it, it is left
+              out rather than wrapping over the timer: the bin still shows which way to slide. */}
+          <View style={[styles.hintText, hintNeed > hintRoom ? styles.hidden : null]} onLayout={(e) => setHintNeed(e.nativeEvent.layout.width)}>
+            <TextShimmer variant="caption">‹  Slide to cancel</TextShimmer>
+          </View>
         </Animated.View>
       </Animated.View>
       <GestureDetector gesture={gesture}>
@@ -196,7 +202,9 @@ const styles = StyleSheet.create({
   },
   bin: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   dot: { width: 8, height: 8, borderRadius: 4 },
-  hint: { flex: 1, alignItems: 'flex-end' },
+  hint: { flex: 1, flexDirection: 'row', justifyContent: 'flex-end', overflow: 'hidden' },
+  hintText: { flexShrink: 0 },
+  hidden: { opacity: 0 },
   button: { width: SIZE, height: SIZE, borderRadius: SIZE / 2, alignItems: 'center', justifyContent: 'center' },
   ring: { position: 'absolute', width: SIZE, height: SIZE, borderRadius: SIZE / 2 },
 });

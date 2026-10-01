@@ -67,7 +67,9 @@ export function Switch({ value: controlled, defaultValue = false, onChange, disa
     })
     .onUpdate((e) => {
       if (Math.abs(e.translationX) > 4) dragged.value = true;
-      x.value = clamp(start.value + e.translationX / TRAVEL, 0, 1);
+      // Gripped, the wider thumb has STRETCH less room to travel; dividing by that keeps it
+      // under the finger instead of sliding out from beneath it.
+      x.value = clamp(start.value + e.translationX / (TRAVEL - STRETCH), 0, 1);
     })
     .onEnd((e) => {
       velocity.value = e.velocityX;

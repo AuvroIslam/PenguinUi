@@ -174,6 +174,7 @@ const ToastCard = memo(function ToastCard({ item, index, expanded, offset, front
   const open = useSharedValue(expanded ? 1 : 0);
   const at = useSharedValue(offset);
   const drag = useSharedValue(0);
+  const downY = useSharedValue(0);
   const leaving = useSharedValue(0);
   const [height, setHeight] = useState(0);
 
@@ -201,9 +202,15 @@ const ToastCard = memo(function ToastCard({ item, index, expanded, offset, front
 
   const pan = Gesture.Pan()
     .activeOffsetY([-8, 8])
+    .onBegin((e) => {
+      // Measure from where the finger went down, not from where the pan was recognised, so the
+      // toast stays under the finger instead of trailing it by the touch slop.
+      downY.value = e.absoluteY;
+    })
     .onUpdate((e) => {
       // Up dismisses; down meets resistance, so the toast feels held rather than stuck.
-      drag.value = e.translationY < 0 ? e.translationY : e.translationY * 0.15;
+      const dy = e.absoluteY - downY.value;
+      drag.value = dy < 0 ? dy : dy * 0.15;
     })
     .onEnd((e) => {
       if (drag.value < -SWIPE || e.velocityY < -600) {

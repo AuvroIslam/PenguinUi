@@ -41,7 +41,7 @@ function TabBarDemo() {
 
 function TabsDemo() {
   return (
-    <Col align="stretch" style={{ paddingHorizontal: 16, paddingTop: 14 }}>
+    <Col align="stretch" style={{ paddingTop: 14 }}>
       <Tabs
         tabs={[
           { key: 'overview', label: 'Overview', content: <Text>A summary of everything in one place.</Text> },

@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text as RNText, type StyleProp, type ViewStyle } from 'react-native';
+import {
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text as RNText,
+  type GestureResponderEvent,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import Animated, {
   Easing,
   ReduceMotion,
@@ -22,6 +30,9 @@ import { fill } from '../../utils/layout';
 import { TextMorph } from '../text/TextMorph';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+// How far past its edges a held finger may stray before the hold lets go, as on native.
+const RETAIN = 20;
 
 export type HoldToConfirmProps = {
   children: string;
@@ -121,6 +132,7 @@ export function HoldToConfirm({
   };
 
   const stop = () => {
+    if (!holding.value) return;
     holding.value = false;
     if (doneRef.current) return;
     press.value = withSpring(0, springs.bouncy);
@@ -133,6 +145,15 @@ export function HoldToConfirm({
     }
     cancelAnimation(progress);
     progress.value = withSpring(0, springs.snappy);
+  };
+
+  // Native presses let go once the finger leaves the button; react-native-web keeps them, so
+  // a hold that slides away would still confirm. On web the location is relative to the button.
+  const size = useRef({ width: 0, height: 0 });
+  const move = (event: GestureResponderEvent) => {
+    const { locationX: x, locationY: y } = event.nativeEvent;
+    const { width: w, height: h } = size.current;
+    if (w > 0 && (x < -RETAIN || y < -RETAIN || x > w + RETAIN || y > h + RETAIN)) stop();
   };
 
   const container = useAnimatedStyle(() => ({
@@ -165,8 +186,10 @@ export function HoldToConfirm({
       disabled={disabled}
       onPressIn={start}
       onPressOut={stop}
+      onPressMove={Platform.OS === 'web' ? move : undefined}
       onLayout={(event) => {
         width.value = event.nativeEvent.layout.width;
+        size.current = { width: event.nativeEvent.layout.width, height: event.nativeEvent.layout.height };
       }}
       style={[
         styles.base,

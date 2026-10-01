@@ -68,6 +68,7 @@ export function SlideToConfirm({
   const max = useSharedValue(0);
   const x = useSharedValue(0);
   const startX = useSharedValue(0);
+  const downX = useSharedValue(0);
   const grab = useSharedValue(0);
   const check = useSharedValue(0);
   const locked = useSharedValue(false);
@@ -91,15 +92,18 @@ export function SlideToConfirm({
 
   const pan = Gesture.Pan()
     .enabled(!disabled)
-    .onBegin(() => {
+    .onBegin((event) => {
       if (locked.value) return;
       startX.value = x.value;
+      // Measured from where the finger went down, not from where the pan was recognised, so
+      // the thumb stays under the finger instead of trailing it by the touch slop.
+      downX.value = event.absoluteX;
       grab.value = withSpring(1, springs.press);
       scheduleOnRN(haptic, 'light');
     })
     .onChange((event) => {
       if (locked.value) return;
-      x.value = clamp(startX.value + event.translationX, 0, max.value);
+      x.value = clamp(startX.value + event.absoluteX - downX.value, 0, max.value);
     })
     .onFinalize((event) => {
       grab.value = withSpring(0, springs.bouncy);
@@ -175,7 +179,7 @@ export function SlideToConfirm({
     >
       <Animated.View style={[styles.trail, { backgroundColor: colors.soft }, trail]} />
 
-      <Animated.View style={[styles.center, hint]}>
+      <Animated.View style={[styles.center, styles.hint, hint]}>
         {disabled ? (
           <Text variant="label" tone="muted">
             {children}
@@ -223,6 +227,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     pointerEvents: 'none',
   },
+  // Centred in the track the thumb has not yet covered, so a long instruction does not run
+  // into the thumb at rest.
+  hint: { paddingLeft: THUMB + INSET },
   thumb: {
     position: 'absolute',
     left: INSET,

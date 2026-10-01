@@ -20,7 +20,7 @@ function TextFieldDemo() {
         onBlur={() => setTouched(true)}
         keyboardType="email-address"
         autoCapitalize="none"
-        error={invalid ? 'That does not look like an email address' : undefined}
+        error={invalid ? 'That does not look like an email' : undefined}
         helper="We only use it to send receipts"
         leading={<Glyph name="message" size={20} color={theme.colors.textMuted} />}
       />
@@ -64,7 +64,7 @@ function OTPDemo() {
   };
 
   return (
-    <Col gap={16}>
+    <Col gap={16} style={{ alignSelf: 'stretch' }}>
       <OTPInput value={code} onChange={setCode} status={status} onComplete={check} />
       <Text variant="caption" tone={status === 'error' ? 'danger' : status === 'success' ? 'success' : 'muted'}>
         {note}
@@ -163,7 +163,7 @@ function PromptDemo() {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   return (
-    <Col align="stretch" style={{ paddingHorizontal: 20, paddingTop: 12 }}>
+    <Col align="stretch" style={{ paddingTop: 12 }}>
       <PromptInput
         loading={loading}
         placeholder="Ask the penguin anything"

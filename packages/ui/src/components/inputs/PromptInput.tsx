@@ -1,5 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
+  Platform,
   StyleSheet,
   TextInput,
   View,
@@ -52,6 +53,10 @@ const LINE = 22;
 const PAD = 14;
 const RADIUS = 26;
 const BUTTON = 40;
+
+// A textarea on the web neither grows with its text nor reports a content size smaller than
+// its own height, so there the text is measured directly and the height is set by hand.
+const WEB = Platform.OS === 'web';
 
 type Mode = 'mic' | 'send' | 'stop';
 
@@ -166,6 +171,8 @@ export function PromptInput({
   const [text, setText] = useControllable(controlled, defaultValue, onChangeText);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [focused, setFocused] = useState(false);
+  const input = useRef<TextInput>(null);
+  const [webHeight, setWebHeight] = useState(LINE);
 
   const minHeight = LINE + PAD * 2;
   const maxHeight = LINE * maxLines + PAD * 2;
@@ -187,6 +194,19 @@ export function PromptInput({
     const next = Math.min(maxHeight, Math.max(minHeight, e.nativeEvent.contentSize.height + PAD * 2));
     grow.value = withSpring(next, springs.snappy);
   };
+
+  useEffect(() => {
+    if (!WEB) return;
+    // Collapse the textarea for a moment to read how tall its text wants to be.
+    const node = input.current as unknown as { style?: { height: string }; scrollHeight: number } | null;
+    if (!node?.style) return;
+    const kept = node.style.height;
+    node.style.height = '0px';
+    const content = Math.max(LINE, node.scrollHeight);
+    node.style.height = kept;
+    setWebHeight(Math.min(content, LINE * maxLines));
+    grow.value = withSpring(Math.min(LINE * maxLines, content) + PAD * 2, springs.snappy);
+  }, [text, size.width, maxLines, grow]);
 
   const shell = useAnimatedStyle(() => ({ height: grow.value }));
   const ring = useAnimatedStyle(() => ({ opacity: focus.value }));
@@ -221,11 +241,12 @@ export function PromptInput({
     >
       <Animated.View pointerEvents="none" style={[fill, styles.ring, { borderColor: c.borderStrong, borderRadius: RADIUS }, ring]} />
       <TextInput
+        ref={input}
         value={text}
         onChangeText={setText}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        onContentSizeChange={onContentSize}
+        onContentSizeChange={WEB ? undefined : onContentSize}
         placeholder={placeholder}
         placeholderTextColor={c.textFaint}
         multiline
@@ -239,6 +260,7 @@ export function PromptInput({
           fontFor(theme, 'regular'),
           styles.input,
           { color: c.text, lineHeight: LINE, maxHeight: maxHeight - PAD * 2 },
+          WEB ? { height: webHeight } : null,
         ]}
       />
       <View style={styles.action}>
@@ -278,7 +300,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   ring: { borderWidth: 1.5 },
-  input: { flex: 1, paddingTop: PAD, paddingBottom: PAD, textAlignVertical: 'top' },
+  // Margin rather than padding: content size includes padding on Android, and on the web the
+  // inline `bareInput` padding would override it.
+  input: { flex: 1, marginVertical: PAD, textAlignVertical: 'top' },
   action: { height: LINE + PAD * 2, justifyContent: 'center' },
   button: { width: BUTTON, height: BUTTON, borderRadius: BUTTON / 2, alignItems: 'center', justifyContent: 'center' },
   center: { alignItems: 'center', justifyContent: 'center' },

@@ -39,6 +39,7 @@ export function FlipCard({ front, back, flipped: controlled, onFlip, radius = 24
   // 0 is the front, 1 is the back. Values in between are mid-turn.
   const turn = useSharedValue(flipped ? 1 : 0);
   const start = useSharedValue(0);
+  const downX = useSharedValue(0);
 
   useEffect(() => {
     const target = flipped ? 1 : 0;
@@ -56,20 +57,24 @@ export function FlipCard({ front, back, flipped: controlled, onFlip, radius = 24
 
   const pan = Gesture.Pan()
     .activeOffsetX([-10, 10])
-    .onBegin(() => {
+    .onBegin((e) => {
       start.value = turn.value;
+      // Measured from where the finger went down, not from where the pan was recognised, so
+      // the turn keeps up with the finger instead of trailing it by the touch slop.
+      downX.value = e.absoluteX;
     })
     .onUpdate((e) => {
       // A full card width of drag is a full half turn.
-      turn.value = start.value - e.translationX / width;
+      turn.value = start.value - (e.absoluteX - downX.value) / width;
     })
     .onEnd((e) => {
       const projected = turn.value - (e.velocityX / width) * 0.2;
       const side = Math.round(projected);
       // Snap to the nearest face, which may be a full turn away; then reduce to 0 or 1.
       const parity = ((side % 2) + 2) % 2 === 1;
-      turn.value = withSpring(side, { ...springs.gentle, velocity: -e.velocityX / width }, () => {
-        turn.value = parity ? 1 : 0;
+      turn.value = withSpring(side, { ...springs.gentle, velocity: -e.velocityX / width }, (done) => {
+        // Only once it has landed: if a new turn took over, leave that one running.
+        if (done) turn.value = parity ? 1 : 0;
       });
       if (parity !== flipped) scheduleOnRN(set, parity);
     });
@@ -101,6 +106,8 @@ export function FlipCard({ front, back, flipped: controlled, onFlip, radius = 24
 }
 
 const styles = StyleSheet.create({
-  face: { overflow: 'hidden', backfaceVisibility: 'hidden', borderWidth: StyleSheet.hairlineWidth },
+  // The front grows to the card's size when it is given one, as the back does, and sets the
+  // size from its content when it is not.
+  face: { flexGrow: 1, overflow: 'hidden', backfaceVisibility: 'hidden', borderWidth: StyleSheet.hairlineWidth },
 });
 

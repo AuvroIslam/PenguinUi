@@ -28,7 +28,8 @@ export type StoriesProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-const HOLD = 180;
+/** A press longer than this is a hold, which pauses, rather than a tap, which moves on. */
+const HOLD = 240;
 
 function Segment({ index, current, progress }: { index: number; current: number; progress: SharedValue<number> }) {
   const fillStyle = useAnimatedStyle(() => {

@@ -38,6 +38,9 @@ export type MiniPlayerProps = {
 const PILL = 68;
 const ART_SMALL = 48;
 const PAD = 22;
+const PILL_BUTTON = 44;
+/** Width at the pill's right end taken by its play button: the button, its inset and a margin. */
+const PILL_PLAY_ZONE = 12 + PILL_BUTTON + 8;
 
 function Reveal({ p, from, children, style }: { p: SharedValue<number>; from: number; children: ReactNode; style?: StyleProp<ViewStyle> }) {
   // Expanded-only content arrives late in the expansion, each block a little after the last.
@@ -73,6 +76,7 @@ export function MiniPlayer({
   const [open, setOpen] = useState(false);
   const p = useSharedValue(0);
   const start = useSharedValue(0);
+  const downY = useSharedValue(0);
   const travel = height - PILL;
 
   useEffect(() => {
@@ -86,11 +90,14 @@ export function MiniPlayer({
 
   const pan = Gesture.Pan()
     .activeOffsetY([-8, 8])
-    .onBegin(() => {
+    .onBegin((e) => {
       start.value = p.value;
+      // Measure from where the finger went down, not from where the pan was recognised, so the
+      // card's edge stays with the finger instead of trailing it by the activation distance.
+      downY.value = e.absoluteY;
     })
     .onUpdate((e) => {
-      p.value = Math.min(1.04, Math.max(-0.02, start.value - e.translationY / travel));
+      p.value = Math.min(1.04, Math.max(-0.02, start.value - (e.absoluteY - downY.value) / travel));
     })
     .onEnd((e) => {
       const projected = p.value - (e.velocityY / travel) * 0.2;
@@ -98,8 +105,9 @@ export function MiniPlayer({
       p.value = withSpring(next ? 1 : 0, { ...springs.smooth, velocity: -e.velocityY / travel });
       scheduleOnRN(settle, next);
     });
-  const tap = Gesture.Tap().onEnd(() => {
-    if (p.value < 0.5) scheduleOnRN(settle, true);
+  // A tap on the pill opens it, except on its play button, which only plays or pauses.
+  const tap = Gesture.Tap().onEnd((e) => {
+    if (p.value < 0.5 && e.x < width - PILL_PLAY_ZONE) scheduleOnRN(settle, true);
   });
 
   const big = Math.max(0, width - PAD * 2);
@@ -134,15 +142,23 @@ export function MiniPlayer({
   return (
     <View style={[styles.slot, { height }, style]} onLayout={(e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width)}>
       <GestureDetector gesture={Gesture.Exclusive(pan, tap)}>
+        {/* Not a button itself: it holds the play and skip buttons, and a button may not
+            contain buttons. The pill's titles carry the "open" action instead. */}
         <Animated.View
-          accessibilityRole="button"
-          accessibilityLabel={open ? 'Now playing' : `Now playing: ${title}. Open player`}
+          accessibilityLabel="Now playing"
           style={[styles.card, { backgroundColor: c.surfaceRaised, borderColor: c.border, boxShadow: theme.shadows.lg }, card]}
         >
           <Animated.View style={[styles.art, art]}>{artwork}</Animated.View>
 
           <Animated.View style={[styles.small, small]} pointerEvents={open ? 'none' : 'auto'}>
-            <View style={styles.smallText}>
+            <View
+              style={styles.smallText}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel={`${title}, ${artist}. Open player`}
+              accessibilityActions={[{ name: 'activate' }]}
+              onAccessibilityAction={() => settle(true)}
+            >
               <Text variant="label" numberOfLines={1}>
                 {title}
               </Text>
@@ -150,7 +166,7 @@ export function MiniPlayer({
                 {artist}
               </Text>
             </View>
-            <PlayPauseButton playing={playing} onToggle={onTogglePlay} size={44} />
+            <PlayPauseButton playing={playing} onToggle={onTogglePlay} size={PILL_BUTTON} />
           </Animated.View>
 
           <Animated.View style={[styles.handle, { backgroundColor: c.borderStrong }, handle]} />

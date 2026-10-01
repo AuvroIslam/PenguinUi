@@ -30,15 +30,20 @@ export type TabsProps = {
 };
 
 const PANEL_SPRING = { damping: 26, stiffness: 240, mass: 0.9 };
+/** Side padding of each tab, and the least it gives up to on a narrow screen. */
+const PAD = 16;
+const MIN_PAD = 6;
 
 function Label({
   text,
   index,
   underline,
+  onWidth,
 }: {
   text: string;
   index: number;
   underline: SharedValue<number>;
+  onWidth: (width: number) => void;
 }) {
   const theme = useTheme();
   const c = theme.colors;
@@ -47,7 +52,14 @@ function Label({
     const near = Math.max(0, 1 - Math.abs(underline.value - index));
     return { color: interpolateColor(near, [0, 1], [c.textMuted, c.text]) };
   });
-  return <Animated.Text style={[styles.label, fontFor(theme, 'medium'), animated]}>{text}</Animated.Text>;
+  return (
+    <Animated.Text
+      onLayout={(e) => onWidth(e.nativeEvent.layout.width)}
+      style={[styles.label, fontFor(theme, 'medium'), animated]}
+    >
+      {text}
+    </Animated.Text>
+  );
 }
 
 /**
@@ -65,62 +77,84 @@ export function Tabs({ tabs, value: controlled, defaultValue, onChange, style }:
   );
   const index = Math.max(0, tabs.findIndex((t) => t.key === value));
 
-  const [layouts, setLayouts] = useState<{ x: number; width: number }[]>([]);
-  const previous = useRef(index);
-  const direction = index >= previous.current ? 1 : -1;
+  // The panel on screen trails the chosen tab by one render. That render gives the leaving
+  // panel this move's direction, since a panel takes the exit it was last rendered with.
+  const [shown, setShown] = useState(index);
+  const direction = useRef(1);
+  if (index !== shown) direction.current = index > shown ? 1 : -1;
   useEffect(() => {
-    previous.current = index;
-  }, [index]);
+    if (shown !== index) setShown(index);
+  }, [index, shown]);
+
+  // On a narrow screen the tabs give up some of their side padding so every label fits.
+  const [rowWidth, setRowWidth] = useState(0);
+  const [labelWidths, setLabelWidths] = useState<number[]>([]);
+  const measured = labelWidths.filter((w) => w > 0).length === tabs.length;
+  const textWidth = labelWidths.reduce((sum, w) => sum + (w || 0), 0);
+  const pad =
+    rowWidth > 0 && measured ? Math.max(MIN_PAD, Math.min(PAD, Math.floor((rowWidth - textWidth) / (tabs.length * 2)))) : PAD;
 
   const left = useSharedValue(0);
   const right = useSharedValue(0);
   const position = useSharedValue(index);
-  const seeded = useSharedValue(false);
 
-  const target = layouts[index];
+  // Tabs sit end to end, each its label plus padding on both sides. Worked out here rather
+  // than measured, because a change of padding alone does not report a new layout on web.
+  let targetX = -1;
+  let targetW = 0;
+  if (measured) {
+    targetX = 0;
+    for (let i = 0; i < index; i += 1) targetX += labelWidths[i] + pad * 2;
+    targetW = labelWidths[index] + pad * 2;
+  }
+  // The index the underline was last sent to. When only the layout changed, it jumps.
+  const placed = useRef(-1);
   useEffect(() => {
-    if (!target) return;
+    if (targetX < 0) return;
     position.value = withSpring(index, springs.snappy);
-    if (!seeded.value) {
-      left.value = target.x;
-      right.value = target.x + target.width;
-      seeded.value = true;
+    if (placed.current === -1 || placed.current === index) {
+      left.value = targetX;
+      right.value = targetX + targetW;
+      placed.current = index;
       return;
     }
-    const forward = target.x >= left.value;
-    left.value = withSpring(target.x, forward ? springs.gentle : springs.snappy);
-    right.value = withSpring(target.x + target.width, forward ? springs.snappy : springs.gentle);
-  }, [target, index, left, right, position, seeded]);
+    placed.current = index;
+    const forward = targetX >= left.value;
+    left.value = withSpring(targetX, forward ? springs.gentle : springs.snappy);
+    right.value = withSpring(targetX + targetW, forward ? springs.snappy : springs.gentle);
+  }, [targetX, targetW, index, left, right, position]);
 
   const line = useAnimatedStyle(() => ({
     width: Math.max(0, right.value - left.value),
     transform: [{ translateX: left.value }],
   }));
 
-  const onLayout = (i: number) => (e: LayoutChangeEvent) => {
-    const { x, width } = e.nativeEvent.layout;
-    setLayouts((prev) => {
-      if (prev[i]?.x === x && prev[i]?.width === width) return prev;
+  const onLabelWidth = (i: number) => (width: number) => {
+    setLabelWidths((prev) => {
+      if (prev[i] === width) return prev;
       const next = prev.slice();
-      next[i] = { x, width };
+      next[i] = width;
       return next;
     });
   };
 
-  const active = tabs[index];
-  const entering = (direction > 0 ? SlideInRight : SlideInLeft).springify()
+  const active = tabs[shown] ?? tabs[index];
+  const entering = (direction.current > 0 ? SlideInRight : SlideInLeft).springify()
     .damping(PANEL_SPRING.damping)
     .stiffness(PANEL_SPRING.stiffness)
     .mass(PANEL_SPRING.mass);
-  const exiting = direction > 0 ? SlideOutLeft.duration(160) : SlideOutRight.duration(160);
+  const exiting = direction.current > 0 ? SlideOutLeft.duration(160) : SlideOutRight.duration(160);
 
   return (
     <View style={[styles.wrap, style]}>
-      <View accessibilityRole="tablist" style={[styles.row, { borderBottomColor: c.border }]}>
+      <View
+        accessibilityRole="tablist"
+        style={[styles.row, { borderBottomColor: c.border }]}
+        onLayout={(e: LayoutChangeEvent) => setRowWidth(e.nativeEvent.layout.width)}
+      >
         {tabs.map((tab, i) => (
           <PressableScale
             key={tab.key}
-            onLayout={onLayout(i)}
             onPress={() => {
               if (i === index) return;
               haptic('selection');
@@ -130,9 +164,9 @@ export function Tabs({ tabs, value: controlled, defaultValue, onChange, style }:
             scaleTo={0.95}
             accessibilityRole="tab"
             accessibilityState={{ selected: i === index }}
-            style={styles.tab}
+            style={[styles.tab, { paddingHorizontal: pad }]}
           >
-            <Label text={tab.label} index={i} underline={position} />
+            <Label text={tab.label} index={i} underline={position} onWidth={onLabelWidth(i)} />
           </PressableScale>
         ))}
         <Animated.View style={[styles.line, { backgroundColor: c.accent }, line]} />
@@ -151,7 +185,7 @@ export function Tabs({ tabs, value: controlled, defaultValue, onChange, style }:
 const styles = StyleSheet.create({
   wrap: { alignSelf: 'stretch' },
   row: { flexDirection: 'row', borderBottomWidth: StyleSheet.hairlineWidth },
-  tab: { paddingHorizontal: 16, height: 46, justifyContent: 'center' },
+  tab: { height: 46, justifyContent: 'center' },
   label: { fontSize: 15, lineHeight: 20 },
   line: { position: 'absolute', left: 0, bottom: -1, height: 2.5, borderRadius: 2 },
   panels: { overflow: 'hidden', minHeight: 120 },

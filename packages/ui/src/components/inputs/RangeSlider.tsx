@@ -48,10 +48,12 @@ type PartProps = {
   active: SharedValue<number>;
 };
 
-function RangeThumb({ pos, index, grabbed, active }: PartProps) {
+function RangeThumb({ pos, index, grabbed, active, front }: PartProps & { front: SharedValue<number> }) {
   const theme = useTheme();
   const c = theme.colors;
   const animated = useAnimatedStyle(() => ({
+    // The thumb last touched sits on top, so a held thumb is never under the other one.
+    zIndex: front.value === index ? 1 : 0,
     transform: [
       { translateX: pos.value },
       { scale: interpolate(grabbed.value === index ? active.value : 0, [0, 1], [1, 1.22]) },
@@ -137,8 +139,10 @@ export function RangeSlider({
   const lo = useSharedValue(0);
   const hi = useSharedValue(0);
   const grabbed = useSharedValue(-1); // -1 none, 0 low thumb, 1 high thumb
+  const front = useSharedValue(1);
   const active = useSharedValue(0);
   const squeeze = useSharedValue(0);
+  const meeting = useSharedValue(false);
   const startX = useSharedValue(0);
   const loIndex = useSharedValue(-1);
   const hiIndex = useSharedValue(-1);
@@ -181,6 +185,8 @@ export function RangeSlider({
       const toLo = Math.abs(touch - lo.value);
       const toHi = Math.abs(touch - hi.value);
       grabbed.value = toLo === toHi ? (touch < lo.value ? 0 : 1) : toLo < toHi ? 0 : 1;
+      front.value = grabbed.value;
+      meeting.value = false;
       const current = grabbed.value === 0 ? lo.value : hi.value;
       startX.value = Math.abs(touch - current) > THUMB ? touch : current;
       active.value = withSpring(1, springs.bouncy);
@@ -188,20 +194,26 @@ export function RangeSlider({
     .onUpdate((e) => {
       const gap = (gapSteps / steps) * span;
       const raw = startX.value + e.translationX;
-      let pushed = false;
+      // How far the finger is pressing past the other thumb's limit.
+      let over = 0;
       if (grabbed.value === 0) {
         const limit = Math.max(0, hi.value - gap);
-        pushed = raw > limit;
+        over = raw - limit;
         lo.value = clamp(raw, 0, limit);
       } else {
         const limit = Math.min(span, lo.value + gap);
-        pushed = raw < limit;
+        over = limit - raw;
         hi.value = clamp(raw, limit, span);
       }
 
-      if (pushed && squeeze.value === 0) {
+      // One squeeze and one tap per meeting. The finger has to back off a little before the
+      // thumbs can meet again, so pressing on or jittering at the limit does not repeat it.
+      if (over > 0 && !meeting.value) {
+        meeting.value = true;
         squeeze.value = withSequence(withTiming(1, { duration: 90 }), withSpring(0, springs.bouncy));
         scheduleOnRN(bump);
+      } else if (over < -4) {
+        meeting.value = false;
       }
 
       const a = Math.round((lo.value / span) * steps);
@@ -245,8 +257,8 @@ export function RangeSlider({
           <Animated.View
             style={[styles.fill, passThrough, { backgroundColor: c.accent }, fillStyle]}
           />
-          <RangeThumb pos={lo} index={0} grabbed={grabbed} active={active} />
-          <RangeThumb pos={hi} index={1} grabbed={grabbed} active={active} />
+          <RangeThumb pos={lo} index={0} grabbed={grabbed} active={active} front={front} />
+          <RangeThumb pos={hi} index={1} grabbed={grabbed} active={active} front={front} />
           <RangeBubble pos={lo} index={0} grabbed={grabbed} active={active} value={value[0]} format={format} />
           <RangeBubble pos={hi} index={1} grabbed={grabbed} active={active} value={value[1]} format={format} />
         </View>

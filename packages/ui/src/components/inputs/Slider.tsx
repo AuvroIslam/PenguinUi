@@ -153,8 +153,10 @@ export function Slider({
     };
   });
 
+  // The fill lives inside the rail, so it stretches with it. Its width is given in the rail's
+  // unstretched units so that it still ends under the thumb while the rail is pulled.
   const fillStyle = useAnimatedStyle(() => ({
-    width: Math.max(0, x.value + stretch.value) + THUMB / 2,
+    width: Math.max(0, x.value + stretch.value) / (1 + Math.abs(stretch.value) / Math.max(span, 1)),
   }));
 
   const thumbStyle = useAnimatedStyle(() => ({
@@ -247,8 +249,8 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     overflow: 'visible',
   },
-  // Begins under the thumb so the fill never shows a square end behind it.
-  fill: { position: 'absolute', left: -THUMB / 2, top: 0, bottom: 0, borderRadius: TRACK / 2 },
+  // Starts with the rail and ends at the thumb's centre, so both of its ends are round.
+  fill: { position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: TRACK / 2 },
   thumb: {
     position: 'absolute',
     left: 0,

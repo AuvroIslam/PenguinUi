@@ -130,12 +130,22 @@ function VoiceDemo() {
   );
 }
 
-const STORIES: { id: string; time: SceneTime; character: Character; line: string }[] = [
-  { id: 'a', time: 'dawn', character: 'pip', line: 'Up before the sun' },
-  { id: 'b', time: 'morning', character: 'mochi', line: 'Found a warm rock' },
-  { id: 'c', time: 'deep', character: 'nori', line: 'Went for a swim' },
-  { id: 'd', time: 'aurora', character: 'bubbles', line: 'The sky turned green' },
+// Scales are shares of the story's height. The whales are long, so they are drawn smaller to
+// stay inside a tall, narrow story instead of losing a tusk or a tail to its edges.
+const STORIES: { id: string; time: SceneTime; character: Character; scale: number; line: string }[] = [
+  { id: 'a', time: 'dawn', character: 'pip', scale: 0.32, line: 'Up before the sun' },
+  { id: 'b', time: 'morning', character: 'mochi', scale: 0.32, line: 'Found a warm rock' },
+  { id: 'c', time: 'deep', character: 'nori', scale: 0.22, line: 'Went for a swim' },
+  { id: 'd', time: 'aurora', character: 'bubbles', scale: 0.21, line: 'The sky turned green' },
 ];
+
+// A soft shadow keeps white type readable on the pale dawn and morning skies.
+const ON_SCENE = {
+  color: '#fff',
+  textShadowColor: 'rgba(8,21,54,0.4)',
+  textShadowOffset: { width: 0, height: 1 },
+  textShadowRadius: 10,
+};
 
 function StoriesDemo() {
   const [round, setRound] = useState(0);
@@ -148,10 +158,10 @@ function StoriesDemo() {
         header={
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <Portrait character="pip" size={30} style={{ borderWidth: 2, borderColor: palette.white }} />
-            <Text variant="label" style={{ color: '#fff' }}>
+            <Text variant="label" style={ON_SCENE}>
               pip.waddles
             </Text>
-            <Text variant="caption" style={{ color: 'rgba(255,255,255,0.7)' }}>
+            <Text variant="caption" style={{ ...ON_SCENE, color: 'rgba(255,255,255,0.8)' }}>
               2h
             </Text>
           </View>
@@ -160,8 +170,8 @@ function StoriesDemo() {
           key: s.id,
           duration: 4000,
           content: (
-            <PolarScene time={s.time} character={s.character} characterScale={0.32} style={{ flex: 1 }}>
-              <Text variant="title" style={{ position: 'absolute', left: 18, right: 18, top: 86, color: '#fff' }}>
+            <PolarScene time={s.time} character={s.character} characterScale={s.scale} style={{ flex: 1 }}>
+              <Text variant="title" style={{ ...ON_SCENE, position: 'absolute', left: 18, right: 18, top: 116 }}>
                 {s.line}
               </Text>
             </PolarScene>

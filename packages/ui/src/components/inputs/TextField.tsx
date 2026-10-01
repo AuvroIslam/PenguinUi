@@ -43,6 +43,8 @@ export type TextFieldProps = Omit<TextInputProps, 'style' | 'placeholder'> & {
 const HEIGHT = 58;
 const FLOAT_SCALE = 0.78;
 const FLOAT_LIFT = -11;
+// Room above the text for the lifted label.
+const TEXT_TOP = 20;
 
 /**
  * A text field whose label sits in the field until there is something to label, then lifts
@@ -162,7 +164,9 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
             typeStyle(theme, 'body'),
             fontFor(theme, 'regular'),
             styles.input,
-            { color: c.text, paddingLeft: inset, paddingRight: trailing ? 44 : 16 },
+            // Padding sits with the inline styles: on the web `bareInput` is inline and would
+            // override padding from the sheet, putting the text under the lifted label.
+            { color: c.text, paddingTop: TEXT_TOP, paddingBottom: 0, paddingLeft: inset, paddingRight: trailing ? 44 : 16 },
           ]}
         />
         {trailing ? <View style={styles.trailing}>{trailing}</View> : null}
@@ -196,7 +200,7 @@ const styles = StyleSheet.create({
   },
   ring: { borderWidth: 1.5 },
   label: { position: 'absolute', top: 0, height: HEIGHT, justifyContent: 'center' },
-  input: { height: HEIGHT, paddingTop: 20, paddingBottom: 0 },
+  input: { height: HEIGHT },
   leading: { position: 'absolute', left: 14, top: 0, bottom: 0, justifyContent: 'center' },
   trailing: { position: 'absolute', right: 6, top: 0, bottom: 0, justifyContent: 'center' },
   message: { minHeight: 20, paddingHorizontal: 4, paddingTop: 6 },

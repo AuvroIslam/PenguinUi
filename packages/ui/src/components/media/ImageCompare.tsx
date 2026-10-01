@@ -27,6 +27,9 @@ export type ImageCompareProps = {
   style?: StyleProp<ViewStyle>;
 };
 
+/** Distance of each label from its side of the frame. */
+const LABEL_INSET = 14;
+
 /**
  * Before and after, split by a divider you drag. The divider trails the finger on a quick
  * spring, which reads as weight rather than lag, and the handle grows when grabbed. The
@@ -43,6 +46,7 @@ export function ImageCompare({
 }: ImageCompareProps) {
   const theme = useTheme();
   const [width, setWidth] = useState(0);
+  const [labelW, setLabelW] = useState({ left: 0, right: 0 });
   const x = useSharedValue(initial);
   const grab = useSharedValue(0);
 
@@ -67,8 +71,16 @@ export function ImageCompare({
   const handle = useAnimatedStyle(() => ({
     transform: [{ translateX: x.value * width - 22 }, { scale: interpolate(grab.value, [0, 1], [1, 1.22]) }],
   }));
-  const leftLabel = useAnimatedStyle(() => ({ opacity: interpolate(x.value, [0.12, 0.3], [0, 1], 'clamp') }));
-  const rightLabel = useAnimatedStyle(() => ({ opacity: interpolate(x.value, [0.7, 0.88], [1, 0], 'clamp') }));
+  // Each label fades over its own measured span: gone by the time the divider is a little way
+  // into it, so it never sits across the divider at full strength, whatever the frame's width.
+  const leftEnd = LABEL_INSET + labelW.left;
+  const rightStart = width - LABEL_INSET - labelW.right;
+  const leftLabel = useAnimatedStyle(() => ({
+    opacity: interpolate(x.value * width, [leftEnd - labelW.left * 0.2, leftEnd + 24], [0, 1], 'clamp'),
+  }));
+  const rightLabel = useAnimatedStyle(() => ({
+    opacity: interpolate(x.value * width, [rightStart - 24, rightStart + labelW.right * 0.2], [1, 0], 'clamp'),
+  }));
 
   return (
     <GestureDetector gesture={pan}>
@@ -83,12 +95,18 @@ export function ImageCompare({
         <Animated.View style={[styles.clip, clip]}>
           <View style={{ width, height }}>{before}</View>
         </Animated.View>
-        <Animated.View style={[styles.label, styles.left, leftLabel]}>
+        <Animated.View
+          style={[styles.label, styles.left, leftLabel]}
+          onLayout={(e: LayoutChangeEvent) => setLabelW((l) => ({ ...l, left: e.nativeEvent.layout.width }))}
+        >
           <Text variant="micro" style={styles.labelText}>
             {beforeLabel}
           </Text>
         </Animated.View>
-        <Animated.View style={[styles.label, styles.right, rightLabel]}>
+        <Animated.View
+          style={[styles.label, styles.right, rightLabel]}
+          onLayout={(e: LayoutChangeEvent) => setLabelW((l) => ({ ...l, right: e.nativeEvent.layout.width }))}
+        >
           <Text variant="micro" style={styles.labelText}>
             {afterLabel}
           </Text>
@@ -127,7 +145,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: 'rgba(0,0,0,0.45)',
   },
-  left: { left: 14 },
-  right: { right: 14 },
+  left: { left: LABEL_INSET },
+  right: { right: LABEL_INSET },
   labelText: { color: '#fff' },
 });
