@@ -582,7 +582,7 @@ export const cards: Demo[] = [
     category: 'Cards',
     summary: 'Swipeable card stack.',
     motion:
-      'The top card follows the finger and leans about the point it was grabbed, so one held low leans the other way. A stamp fades in on the side it is heading for, and the card beneath rises and grows into place. Past the line it flies off at the speed it was thrown.',
+      'The top card lifts as it is picked up and stays under the finger, leaning about the point it was grabbed, so one held low leans the other way. It swings further while moving and settles back when the finger slows, like a card dragged across a table. A stamp presses in on the side it is heading for and the card beneath rises into place. Past the line it carries on at the speed it was thrown; short of it, it glides back and rocks to rest.',
     touch: 'Light haptic crossing the line, medium when a card is sent.',
     layout: 'fill',
     Component: SwipeDeckDemo,
