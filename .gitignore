@@ -46,3 +46,9 @@ Thumbs.db
 
 # local tooling output
 .screenshots/
+
+# website build output; the live previews are rebuilt from the showcase on every deploy
+apps/web/.next/
+apps/web/out/
+apps/web/public/preview/
+apps/web/next-env.d.ts

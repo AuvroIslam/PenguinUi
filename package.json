@@ -10,7 +10,9 @@
     "start": "npm run start -w showcase",
     "android": "npm run android -w showcase",
     "ios": "npm run ios -w showcase",
-    "web": "npm run web -w showcase",
-    "typecheck": "npm run typecheck -w penguin-ui && npm run typecheck -w @penguin-ui/brand && npm run typecheck -w @penguin-ui/demos && npm run typecheck -w showcase"
+    "web": "npm run dev -w web",
+    "typecheck": "npm run typecheck -w penguin-ui && npm run typecheck -w @penguin-ui/brand && npm run typecheck -w @penguin-ui/demos && npm run typecheck -w showcase && npm run typecheck -w web",
+    "build:preview": "npm run export:preview -w showcase",
+    "build:web": "npm run build:preview && npm run build -w web"
   }
 }
