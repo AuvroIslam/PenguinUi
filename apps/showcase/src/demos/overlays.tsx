@@ -1,16 +1,22 @@
 import {
+  ActionSheet,
+  Banner,
   BottomSheet,
   Button,
   Dialog,
   DynamicIsland,
   Glyph,
+  IconButton,
+  MorphingDialog,
   Text,
+  Tooltip,
   toast,
   useTheme,
   type IslandState,
 } from 'penguin-ui';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -224,6 +230,116 @@ function Bars() {
   );
 }
 
+function MorphingDialogDemo() {
+  const theme = useTheme();
+  const art = (color: string, icon: 'music' | 'image') => (
+    <View style={{ flex: 1, backgroundColor: color, alignItems: 'center', justifyContent: 'center' }}>
+      <Glyph name={icon} size={44} color="rgba(255,255,255,0.9)" strokeWidth={1.5} />
+    </View>
+  );
+  return (
+    <View style={{ flexDirection: 'row', gap: 12, alignSelf: 'stretch', paddingTop: 8 }}>
+      <MorphingDialog
+        style={{ flex: 1 }}
+        title="Midnight Drive"
+        subtitle="Penguin Collective"
+        image={art('#E8572A', 'music')}
+      >
+        <Text variant="body" tone="muted">
+          Recorded over one long night in a borrowed studio. Eight tracks, no overdubs, and a drum machine that kept
+          drifting out of time, which the band decided to keep.
+        </Text>
+      </MorphingDialog>
+      <MorphingDialog style={{ flex: 1 }} title="Coastline" subtitle="Field recordings" image={art(theme.dark ? '#2B6CB0' : '#3B82F6', 'image')}>
+        <Text variant="body" tone="muted">
+          Waves, gulls and wind, captured along forty kilometres of coast over a single week in autumn.
+        </Text>
+      </MorphingDialog>
+    </View>
+  );
+}
+
+function ActionSheetDemo() {
+  const insets = useSafeAreaInsets();
+  const [open, setOpen] = useState(false);
+  const [last, setLast] = useState('');
+  return (
+    <Col gap={12}>
+      <Button onPress={() => setOpen(true)}>Show actions</Button>
+      <Text variant="caption" tone="muted">
+        {last ? `Chose ${last}` : 'Nothing chosen'}
+      </Text>
+      <ActionSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        bottom={insets.bottom}
+        title="Photo"
+        message="Choose what to do with this photo."
+        actions={[
+          { label: 'Share', icon: 'share', onPress: () => setLast('share') },
+          { label: 'Save to library', icon: 'bookmark', onPress: () => setLast('save') },
+          { label: 'Copy link', icon: 'copy', onPress: () => setLast('copy') },
+          { label: 'Delete', icon: 'trash', destructive: true, onPress: () => setLast('delete') },
+        ]}
+      />
+    </Col>
+  );
+}
+
+function TooltipDemo() {
+  return (
+    <Col gap={22} style={{ paddingTop: 10 }}>
+      <Row gap={18}>
+        <Tooltip content="Notifications are paused until 9:00">
+          <IconButton icon="bell" label="Notifications" variant="filled" />
+        </Tooltip>
+        <Tooltip content="Share with people in this workspace" placement="bottom">
+          <IconButton icon="share" label="Share" variant="outline" />
+        </Tooltip>
+        <Tooltip content="Saved" trigger="press">
+          <IconButton icon="bookmark" label="Save" />
+        </Tooltip>
+      </Row>
+      <Text variant="caption" tone="muted" align="center">
+        Long press the first two, tap the last.
+      </Text>
+    </Col>
+  );
+}
+
+function BannerDemo() {
+  const insets = useSafeAreaInsets();
+  const [open, setOpen] = useState<null | 'success' | 'danger'>(null);
+  return (
+    <Col gap={12}>
+      <Row>
+        <Button size="sm" onPress={() => setOpen('success')}>
+          Archived
+        </Button>
+        <Button size="sm" variant="secondary" onPress={() => setOpen('danger')}>
+          Failed
+        </Button>
+      </Row>
+      <Text variant="caption" tone="muted" align="center">
+        Hold the banner to pause its timer. Flick it up to dismiss.
+      </Text>
+      <Banner
+        open={open !== null}
+        onDismiss={() => setOpen(null)}
+        top={insets.top}
+        tone={open ?? 'success'}
+        title={open === 'danger' ? 'Payment failed' : 'Conversation archived'}
+        description={open === 'danger' ? 'Your card was declined.' : 'You can find it in Archive.'}
+        action={
+          <Button size="sm" variant="secondary" onPress={() => setOpen(null)}>
+            {open === 'danger' ? 'Retry' : 'Undo'}
+          </Button>
+        }
+      />
+    </Col>
+  );
+}
+
 export const overlays: Demo[] = [
   {
     id: 'bottom-sheet',
@@ -265,5 +381,45 @@ export const overlays: Demo[] = [
     touch: 'Soft haptic on press.',
     layout: 'fill',
     Component: IslandDemo,
+  },
+  {
+    id: 'morphing-dialog',
+    name: 'MorphingDialog',
+    category: 'Overlays',
+    summary: 'A card that becomes a dialog.',
+    motion:
+      'The card\'s own frame springs from its place in the layout to the middle of the screen, position, size and radius together, with the artwork growing inside it. The body opens only as it arrives. Closing returns it to its exact place.',
+    touch: 'Drag the open dialog down to shrink and dismiss it.',
+    Component: MorphingDialogDemo,
+  },
+  {
+    id: 'action-sheet',
+    name: 'ActionSheet',
+    category: 'Overlays',
+    summary: 'List of actions from the bottom.',
+    motion:
+      'The sheet rides up on a heavy spring and its rows rise into place one after another, tied to the sheet\'s own travel rather than a separate clock. Cancel sits apart and arrives last.',
+    touch: 'Selection haptic on an action. Drag down to dismiss.',
+    Component: ActionSheetDemo,
+  },
+  {
+    id: 'tooltip',
+    name: 'Tooltip',
+    category: 'Overlays',
+    summary: 'Anchored hint.',
+    motion:
+      'Grows out of the tip of its own arrow on a snappy spring, so it comes from the control. It flips above or below and slides along the screen edge to stay visible while the arrow keeps pointing at the anchor.',
+    touch: 'Selection haptic on show.',
+    Component: TooltipDemo,
+  },
+  {
+    id: 'banner',
+    name: 'Banner',
+    category: 'Overlays',
+    summary: 'Top alert with a visible timer.',
+    motion:
+      'Drops from the top edge on a bouncy spring. A line along its bottom shrinks toward the moment it will leave, so the time left is visible. Holding the banner stops the line; letting go resumes it.',
+    touch: 'Notification haptic by tone. Flick up to dismiss.',
+    Component: BannerDemo,
   },
 ];

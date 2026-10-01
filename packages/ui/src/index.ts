@@ -92,3 +92,7 @@ export * from './components/overlays/BottomSheet';
 export * from './components/overlays/Dialog';
 export * from './components/overlays/Toast';
 export * from './components/overlays/DynamicIsland';
+export * from './components/overlays/MorphingDialog';
+export * from './components/overlays/ActionSheet';
+export * from './components/overlays/Tooltip';
+export * from './components/overlays/Banner';
