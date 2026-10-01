@@ -1,5 +1,9 @@
 import {
+  ActivityRings,
+  BarChart,
+  Button,
   ImageCompare,
+  LineChart,
   MiniPlayer,
   PlayPauseButton,
   Stories,
@@ -196,6 +200,78 @@ function MiniPlayerDemo() {
   );
 }
 
+const WEEK = [
+  { label: 'Mon', value: 3200 },
+  { label: 'Tue', value: 5400 },
+  { label: 'Wed', value: 4100 },
+  { label: 'Thu', value: 7800 },
+  { label: 'Fri', value: 6300 },
+  { label: 'Sat', value: 9100 },
+  { label: 'Sun', value: 2600 },
+];
+
+function BarChartDemo() {
+  return (
+    <Col align="stretch" gap={10} style={{ paddingHorizontal: 18, paddingTop: 10 }}>
+      <Text variant="label">Steps this week</Text>
+      <BarChart data={WEEK} highlight={5} height={250} format={(v) => (v >= 1000 ? `${(v / 1000).toFixed(v % 1000 ? 1 : 0)}k` : String(v))} />
+      <Text variant="caption" tone="muted">
+        Slide a finger across the bars.
+      </Text>
+    </Col>
+  );
+}
+
+const PRICE = [
+  128, 131, 129, 135, 141, 138, 144, 152, 149, 147, 155, 161, 158, 166, 171, 168, 175, 182, 179, 186, 191, 188, 196, 203,
+].map((v, i) => ({ label: `Sep ${i + 6}`, value: v }));
+
+function LineChartDemo() {
+  return (
+    <Col align="stretch" gap={10} style={{ paddingHorizontal: 18, paddingTop: 10 }}>
+      <LineChart data={PRICE} height={260} format={(v) => `$${v}`} />
+      <Text variant="caption" tone="muted">
+        Touch and slide to read any day.
+      </Text>
+    </Col>
+  );
+}
+
+function RingsDemo() {
+  const [day, setDay] = useState(0);
+  const days = [
+    { move: 0.72, exercise: 0.45, stand: 0.9 },
+    { move: 1.24, exercise: 1, stand: 0.66 },
+    { move: 0.35, exercise: 0.8, stand: 1.1 },
+  ];
+  const d = days[day];
+  const rings = [
+    { key: 'move', label: 'Move', value: d.move, color: '#FA114F' },
+    { key: 'exercise', label: 'Exercise', value: d.exercise, color: '#A6FF00' },
+    { key: 'stand', label: 'Stand', value: d.stand, color: '#00F0FF' },
+  ];
+  return (
+    <Col gap={20}>
+      <View style={{ padding: 18, borderRadius: 32, backgroundColor: '#0B0B0D' }}>
+        <ActivityRings rings={rings} size={200} />
+      </View>
+      <Row>
+        {rings.map((r) => (
+          <View key={r.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: r.color }} />
+            <Text variant="caption">
+              {r.label} {Math.round(r.value * 100)}%
+            </Text>
+          </View>
+        ))}
+      </Row>
+      <Button size="sm" variant="secondary" onPress={() => setDay((x) => (x + 1) % days.length)}>
+        Next day
+      </Button>
+    </Col>
+  );
+}
+
 export const media: Demo[] = [
   {
     id: 'play-pause-button',
@@ -261,5 +337,37 @@ export const media: Demo[] = [
     touch: 'Light haptic when it settles open or closed.',
     layout: 'fill',
     Component: MiniPlayerDemo,
+  },
+  {
+    id: 'bar-chart',
+    name: 'BarChart',
+    category: 'Media',
+    summary: 'Bar chart read by touch.',
+    motion:
+      'Bars rise from the baseline one after another on a bouncy spring. Sliding a finger across keeps the bar under it at full strength while the rest recede, and a value bubble glides between bars with its figure rolling.',
+    touch: 'Selection haptic per bar.',
+    layout: 'fill',
+    Component: BarChartDemo,
+  },
+  {
+    id: 'line-chart',
+    name: 'LineChart',
+    category: 'Media',
+    summary: 'Line chart that draws itself.',
+    motion:
+      'The line draws in along a monotone curve and the area fades up beneath it. Touching snaps a ringed cursor to the nearest point, and the headline figure rolls to its value while the change and date update.',
+    touch: 'Selection haptic per point.',
+    layout: 'fill',
+    Component: LineChartDemo,
+  },
+  {
+    id: 'activity-rings',
+    name: 'ActivityRings',
+    category: 'Media',
+    summary: 'Concentric progress rings.',
+    motion:
+      'Each ring sweeps round on a heavy spring 120ms after the one outside it. A ring past its goal keeps going and laps itself, its head casting a small shadow so the overlap reads. Closing a ring gives it one pulse.',
+    touch: 'Success haptic when a ring closes.',
+    Component: RingsDemo,
   },
 ];

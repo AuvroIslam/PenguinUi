@@ -126,3 +126,6 @@ export * from './components/media/ImageCompare';
 export * from './components/media/VoiceRecordButton';
 export * from './components/media/Stories';
 export * from './components/media/MiniPlayer';
+export * from './components/media/BarChart';
+export * from './components/media/LineChart';
+export * from './components/media/ActivityRings';
