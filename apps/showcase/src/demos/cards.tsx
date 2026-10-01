@@ -1,21 +1,30 @@
 import {
   Accordion,
+  AvatarStack,
+  Button,
   Card,
+  Carousel,
+  CoverflowCarousel,
   CardStack,
   ExpandableCard,
   FlipCard,
   Glyph,
   ReorderList,
+  SegmentedControl,
+  StackedScroll,
+  StaggerList,
   SwipeDeck,
   SwipeableRow,
   Text,
   TiltCard,
   useTheme,
+  type AvatarPerson,
+  type StaggerPreset,
 } from 'penguin-ui';
 import { useState } from 'react';
-import { View } from 'react-native';
+import { Image, View } from 'react-native';
 
-import { Col } from './kit';
+import { Col, Row } from './kit';
 import type { Demo } from './types';
 
 function CardDemo() {
@@ -323,6 +332,187 @@ function ReorderDemo() {
   );
 }
 
+const ACTIVITY = [
+  { id: 1, who: 'Mara', what: 'commented on Onboarding v3' },
+  { id: 2, who: 'Theo', what: 'shipped the new tab bar' },
+  { id: 3, who: 'Ines', what: 'requested your review' },
+  { id: 4, who: 'Kai', what: 'joined the motion channel' },
+];
+
+function StaggerDemo() {
+  const theme = useTheme();
+  const [preset, setPreset] = useState<StaggerPreset>('rise');
+  const [run, setRun] = useState(0);
+  const [items, setItems] = useState(ACTIVITY);
+  const next = () =>
+    setItems((list) => [{ id: Date.now(), who: 'Rosa', what: 'added a new component' }, ...list].slice(0, 6));
+  return (
+    <Col align="stretch" gap={14} style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+      <SegmentedControl
+        options={['rise', 'scale', 'fade', 'slide']}
+        value={preset}
+        onChange={(v) => {
+          setPreset(v as StaggerPreset);
+          setItems(ACTIVITY);
+          setRun((r) => r + 1);
+        }}
+      />
+      <StaggerList key={`${preset}${run}`} preset={preset}>
+        {items.map((item) => (
+          <View
+            key={item.id}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+              padding: 14,
+              borderRadius: 16,
+              backgroundColor: theme.colors.surface,
+              borderWidth: 1,
+              borderColor: theme.colors.border,
+            }}
+          >
+            <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: theme.colors.accentSoft }} />
+            <Text variant="body" style={{ flex: 1 }}>
+              <Text variant="label">{item.who}</Text> {item.what}
+            </Text>
+            <Text
+              variant="caption"
+              tone="faint"
+              onPress={() => setItems((list) => list.filter((x) => x.id !== item.id))}
+            >
+              Remove
+            </Text>
+          </View>
+        ))}
+      </StaggerList>
+      <Row>
+        <Button size="sm" variant="secondary" onPress={() => setRun((r) => r + 1)}>
+          Replay
+        </Button>
+        <Button size="sm" onPress={next}>
+          Add one
+        </Button>
+      </Row>
+    </Col>
+  );
+}
+
+const CHAPTERS = [
+  { id: 'a', n: '01', title: 'Plan the motion', color: '#1A1A22' },
+  { id: 'b', n: '02', title: 'Choose the spring', color: '#F4581C' },
+  { id: 'c', n: '03', title: 'Tie it to the finger', color: '#3B82F6' },
+  { id: 'd', n: '04', title: 'Add a haptic', color: '#1E9E5A' },
+  { id: 'e', n: '05', title: 'Test on a phone', color: '#A855F7' },
+];
+
+function StackedScrollDemo() {
+  return (
+    <View style={{ height: 500, alignSelf: 'stretch', paddingHorizontal: 12 }}>
+      <StackedScroll
+        items={CHAPTERS}
+        keyOf={(c) => c.id}
+        cardHeight={230}
+        renderItem={(c) => (
+          <View style={{ flex: 1, backgroundColor: c.color, padding: 22, justifyContent: 'space-between' }}>
+            <Text variant="micro" style={{ color: 'rgba(255,255,255,0.65)' }}>
+              Step {c.n}
+            </Text>
+            <Text variant="title" style={{ color: '#fff' }}>
+              {c.title}
+            </Text>
+          </View>
+        )}
+      />
+    </View>
+  );
+}
+
+const PHOTOS = [
+  { id: '1018', title: 'Valley' },
+  { id: '1015', title: 'River' },
+  { id: '1039', title: 'Falls' },
+  { id: '1043', title: 'Coast' },
+  { id: '1036', title: 'Ridge' },
+];
+
+function CarouselDemo() {
+  return (
+    <Col align="stretch" style={{ paddingTop: 10 }}>
+      <Carousel
+        items={PHOTOS}
+        keyOf={(p) => p.id}
+        height={360}
+        renderItem={(p) => (
+          <View style={{ flex: 1 }}>
+            <Image source={{ uri: `https://picsum.photos/id/${p.id}/900/1100` }} style={{ flex: 1 }} resizeMode="cover" />
+            <Text variant="title" style={{ position: 'absolute', left: '22%', bottom: 22, color: '#fff' }}>
+              {p.title}
+            </Text>
+          </View>
+        )}
+      />
+    </Col>
+  );
+}
+
+const ALBUMS = [
+  { id: '1062', title: 'Low Tide' },
+  { id: '1080', title: 'Orchard' },
+  { id: '1084', title: 'Night Bus' },
+  { id: '110', title: 'Paper Moon' },
+  { id: '111', title: 'Signal' },
+  { id: '119', title: 'Glasshouse' },
+  { id: '129', title: 'North' },
+];
+
+function CoverflowDemo() {
+  const [index, setIndex] = useState(3);
+  return (
+    <Col gap={14} align="stretch" style={{ paddingTop: 20 }}>
+      <CoverflowCarousel
+        items={ALBUMS}
+        keyOf={(a) => a.id}
+        initialIndex={3}
+        onIndexChange={setIndex}
+        renderItem={(a) => <Image source={{ uri: `https://picsum.photos/id/${a.id}/400/400` }} style={{ flex: 1 }} />}
+      />
+      <Text variant="heading" align="center">
+        {ALBUMS[index].title}
+      </Text>
+      <Text variant="caption" tone="muted" align="center">
+        Drag or tap a cover
+      </Text>
+    </Col>
+  );
+}
+
+const NAMES = ['Mara Quinn', 'Theo Park', 'Ines Rocha', 'Kai Lund', 'Rosa Diaz', 'Omar Haddad', 'June Ito', 'Lena Volk'];
+
+function AvatarStackDemo() {
+  const [people, setPeople] = useState<AvatarPerson[]>(NAMES.slice(0, 4).map((n) => ({ key: n, name: n })));
+  const add = () => {
+    const next = NAMES.find((n) => !people.some((p) => p.key === n));
+    if (next) setPeople([{ key: next, name: next }, ...people]);
+  };
+  return (
+    <Col gap={26}>
+      <AvatarStack people={people} max={5} />
+      <Row>
+        <Button size="sm" onPress={add}>
+          Add person
+        </Button>
+        <Button size="sm" variant="secondary" onPress={() => setPeople(NAMES.slice(0, 4).map((n) => ({ key: n, name: n })))}>
+          Reset
+        </Button>
+      </Row>
+      <Text variant="caption" tone="muted">
+        Tap the avatars to fan them out.
+      </Text>
+    </Col>
+  );
+}
+
 export const cards: Demo[] = [
   {
     id: 'card',
@@ -419,5 +609,57 @@ export const cards: Demo[] = [
     touch: 'Medium haptic on lift, selection on every slot change.',
     layout: 'fill',
     Component: ReorderDemo,
+  },
+  {
+    id: 'stagger-list',
+    name: 'StaggerList',
+    category: 'Cards',
+    summary: 'Staggered group reveal.',
+    motion:
+      'On first mount each child enters a beat after the one before, with one of four presets. After that the list moves as one surface: a new item enters on its own, a removed one leaves, and the rest slide to their new places on springs.',
+    layout: 'fill',
+    Component: StaggerDemo,
+  },
+  {
+    id: 'stacked-scroll',
+    name: 'StackedScroll',
+    category: 'Cards',
+    summary: 'Cards that pin and stack as you scroll.',
+    motion:
+      'Each card scrolls in, sticks when it reaches the stack, then steps back and dims as the next lands on it, keeping a visible edge of every card in the pile. Scrolling back peels them off in reverse.',
+    layout: 'fill',
+    Component: StackedScrollDemo,
+  },
+  {
+    id: 'carousel',
+    name: 'Carousel',
+    category: 'Cards',
+    summary: 'Snap carousel with parallax.',
+    motion:
+      'The middle slide is full size and its neighbours step back and fade. Each photo slides inside its frame against the scroll, so it seems to sit behind the glass. The dots follow the scroll continuously.',
+    touch: 'Selection tick on each new slide.',
+    layout: 'fill',
+    Component: CarouselDemo,
+  },
+  {
+    id: 'coverflow-carousel',
+    name: 'CoverflowCarousel',
+    category: 'Cards',
+    summary: '3D carousel.',
+    motion:
+      'The middle cover faces you while the rest turn toward it and recede in depth. Drag to flip through; a flick carries on through several before settling. Tapping a cover brings it to the middle.',
+    touch: 'Selection tick as each cover passes the centre.',
+    layout: 'fill',
+    Component: CoverflowDemo,
+  },
+  {
+    id: 'avatar-stack',
+    name: 'AvatarStack',
+    category: 'Cards',
+    summary: 'Overlapping avatars.',
+    motion:
+      'Tapping fans the row open, each avatar sliding out a beat after the last and showing its name, then closing back up. A new person scales in at the front and pushes the others along on a spring.',
+    touch: 'Light haptic on tap.',
+    Component: AvatarStackDemo,
   },
 ];

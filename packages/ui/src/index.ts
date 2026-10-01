@@ -113,3 +113,8 @@ export * from './components/cards/Accordion';
 export * from './components/cards/CardStack';
 export * from './components/cards/SwipeableRow';
 export * from './components/cards/ReorderList';
+export * from './components/cards/StaggerList';
+export * from './components/cards/StackedScroll';
+export * from './components/cards/Carousel';
+export * from './components/cards/CoverflowCarousel';
+export * from './components/cards/AvatarStack';
