@@ -15,7 +15,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Platform, StatusBar as RNStatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Embed } from '@/embed';
 import { SchemeContext, type Scheme } from '@/scheme';
+
+// On the web, `?c=<demo id>` turns the app into a single bare demo for the website to frame.
+const params = Platform.OS === 'web' && typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+const embedId = params?.get('c') ?? null;
+const embedScheme: Scheme | null = embedId ? (params?.get('theme') === 'light' ? 'light' : 'dark') : null;
 
 const overrides: ThemeOverrides = {
   fonts: {
@@ -31,11 +37,21 @@ function Screens() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
+
   // Expo Go on Android 14 and below is not edge to edge and paints the status bar black.
   // Matching it to the page keeps the top of the screen seamless; under edge to edge this is a no-op.
   useEffect(() => {
     if (Platform.OS === 'android') RNStatusBar.setBackgroundColor(theme.colors.background);
   }, [theme.colors.background]);
+
+  if (embedId) {
+    return (
+      <>
+        <Embed id={embedId} />
+        <Toaster top={12} />
+      </>
+    );
+  }
 
   return (
     <>
@@ -53,7 +69,7 @@ function Screens() {
 
 export default function RootLayout() {
   const system = useColorScheme();
-  const [scheme, setScheme] = useState<Scheme>(system === 'dark' ? 'dark' : 'light');
+  const [scheme, setScheme] = useState<Scheme>(embedScheme ?? (system === 'dark' ? 'dark' : 'light'));
   const toggle = useCallback(() => setScheme((s) => (s === 'dark' ? 'light' : 'dark')), []);
   const value = useMemo(() => ({ scheme, toggle }), [scheme, toggle]);
 
