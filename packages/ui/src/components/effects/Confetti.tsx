@@ -93,7 +93,7 @@ const ConfettiPiece = memo(function ConfettiPiece({
  * so a hundred pieces cost one clock. Under reduced motion it fires a haptic and nothing else.
  */
 export const Confetti = forwardRef<ConfettiHandle, ConfettiProps>(function Confetti(
-  { count = 80, colors = ['#FF6B35', '#FACC15', '#22C55E', '#3B82F6', '#A855F7', '#EC4899'], duration = 2600, style },
+  { count = 80, colors = ['#2F6BF0', '#9CC2FF', '#FFFFFF', '#FF9A3C', '#3DDAB4', '#FFB4C6', '#16264D'], duration = 2600, style },
   ref,
 ) {
   const screen = useWindowDimensions();

@@ -12,6 +12,7 @@ import {
   useTheme,
   type ConfettiHandle,
 } from 'penguin-ui';
+import { palette } from '@penguin-ui/brand';
 import { useRef, useState } from 'react';
 import { View } from 'react-native';
 
@@ -106,8 +107,8 @@ function PulseDemo() {
           <Glyph name="mic" size={24} color={theme.colors.onAccent} strokeWidth={2} />
         </View>
       </PulseRings>
-      <PulseRings size={18} reach={4} filled color="#3B82F6" period={2000}>
-        <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: '#3B82F6', borderWidth: 3, borderColor: '#fff' }} />
+      <PulseRings size={18} reach={4} filled color={palette.blue} period={2000}>
+        <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: palette.blue, borderWidth: 3, borderColor: palette.white }} />
       </PulseRings>
     </Row>
   );

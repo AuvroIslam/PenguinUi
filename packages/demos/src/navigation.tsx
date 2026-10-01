@@ -15,6 +15,7 @@ import {
   Text,
   useTheme,
 } from 'penguin-ui';
+import { PolarScene, type Character, type SceneTime } from '@penguin-ui/brand';
 import { useState } from 'react';
 import { View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
@@ -60,7 +61,12 @@ function PageDotsDemo() {
   const onScroll = useAnimatedScrollHandler((e) => {
     progress.value = e.contentOffset.x / page;
   });
-  const colors = ['#F4581C', '#1E9E5A', '#3B82F6', '#A855F7'];
+  const scenes: { time: SceneTime; character: Character }[] = [
+    { time: 'morning', character: 'pip' },
+    { time: 'dawn', character: 'mochi' },
+    { time: 'dusk', character: 'frost' },
+    { time: 'aurora', character: 'nori' },
+  ];
 
   return (
     <Col align="stretch" gap={18} style={{ paddingHorizontal: 16, paddingTop: 36 }}>
@@ -72,11 +78,11 @@ function PageDotsDemo() {
         scrollEventThrottle={16}
         style={{ borderRadius: 18 }}
       >
-        {colors.map((color) => (
-          <View key={color} style={{ width: page, height: 150, backgroundColor: color, opacity: 0.85 }} />
+        {scenes.map((s) => (
+          <PolarScene key={s.time} time={s.time} character={s.character} style={{ width: page, height: 170 }} />
         ))}
       </Animated.ScrollView>
-      <PageDots count={colors.length} progress={progress} />
+      <PageDots count={scenes.length} progress={progress} />
     </Col>
   );
 }
@@ -221,19 +227,8 @@ function RadialDemo() {
 function OnboardingDemo() {
   const theme = useTheme();
   const [done, setDone] = useState(false);
-  const art = (name: 'sparkle' | 'bolt' | 'heart') => (
-    <View
-      style={{
-        width: 150,
-        height: 150,
-        borderRadius: 44,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: theme.colors.accentSoft,
-      }}
-    >
-      <Glyph name={name} size={64} color={theme.colors.accent} strokeWidth={1.5} />
-    </View>
+  const art = (time: SceneTime, character: Character) => (
+    <PolarScene time={time} character={character} style={{ width: 230, height: 190, borderRadius: 32 }} />
   );
   return (
     <View style={{ height: 520, alignSelf: 'stretch' }}>
@@ -248,9 +243,9 @@ function OnboardingDemo() {
         <Onboarding
           onDone={() => setDone(true)}
           pages={[
-            { key: 'a', title: 'Feels alive', body: 'Every press moves something, on springs instead of timers.', art: art('sparkle') },
-            { key: 'b', title: 'Fast by default', body: 'Animation runs on the UI thread, so it keeps up with your finger.', art: art('bolt') },
-            { key: 'c', title: 'Made with care', body: 'Small details, planned one at a time, for phones.', art: art('heart') },
+            { key: 'a', title: 'Feels alive', body: 'Every press moves something, on springs instead of timers.', art: art('morning', 'pip') },
+            { key: 'b', title: 'Fast by default', body: 'Animation runs on the UI thread, so it keeps up with your finger.', art: art('deep', 'nori') },
+            { key: 'c', title: 'Made with care', body: 'Small details, planned one at a time, for phones.', art: art('dawn', 'mochi') },
           ]}
         />
       )}
@@ -259,6 +254,7 @@ function OnboardingDemo() {
 }
 
 function CollapsingDemo() {
+  const theme = useTheme();
   return (
     <View style={{ height: 480, alignSelf: 'stretch' }}>
       <CollapsingHeader title="Library" subtitle="48 components">
@@ -266,7 +262,13 @@ function CollapsingDemo() {
           {Array.from({ length: 14 }, (_, i) => (
             <View
               key={i}
-              style={{ height: 64, borderRadius: 16, backgroundColor: i % 2 ? '#EFEFF2' : '#F6F6F8', justifyContent: 'center', paddingHorizontal: 16 }}
+              style={{
+                height: 64,
+                borderRadius: 16,
+                backgroundColor: i % 2 ? theme.colors.surfaceSunken : theme.colors.surface,
+                justifyContent: 'center',
+                paddingHorizontal: 16,
+              }}
             >
               <Text variant="label">Row {i + 1}</Text>
             </View>

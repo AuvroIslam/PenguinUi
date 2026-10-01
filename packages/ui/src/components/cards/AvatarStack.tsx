@@ -15,7 +15,14 @@ import { Text } from '../../primitives/Text';
 import { useTheme } from '../../theme/ThemeProvider';
 import { fontFor } from '../../theme/tokens';
 
-export type AvatarPerson = { key: string; name: string; color?: string };
+export type AvatarPerson = {
+  key: string;
+  name: string;
+  /** Fill behind the initials when there is no avatar. */
+  color?: string;
+  /** A picture to show instead of initials. It is drawn inside the round frame. */
+  avatar?: ReactNode;
+};
 
 export type AvatarStackProps = {
   people: AvatarPerson[];
@@ -125,7 +132,8 @@ export function AvatarStack({ people, size = 44, max = 5, style }: AvatarStackPr
   const total = shown.length + (extra > 0 ? 1 : 0);
   const width = (total - 1) * pitch + size;
 
-  const palette = [c.accent, '#3B82F6', '#1E9E5A', '#A855F7', '#D98A0B', '#E0424A', '#0EA5A4', '#6366F1'];
+  // Cold blues and one warm note, so a row of initials reads as one family.
+  const palette = [c.accent, '#16264D', '#6E9BF5', '#2551D9', '#9CC2FF', '#FF9A3C', '#3B5A9C', '#5B8DFF'];
   // Colours are handed out in order of first appearance and then kept, so a person's colour
   // never changes when someone joins, and neighbours only repeat once the palette runs out.
   const colours = useRef(new Map<string, string>());
@@ -158,9 +166,11 @@ export function AvatarStack({ people, size = 44, max = 5, style }: AvatarStackPr
           label={p.name.split(' ')[0]}
           color={p.color ?? colours.current.get(p.key) ?? palette[0]}
         >
-          <Text style={[{ color: '#fff', fontSize: size * 0.36, lineHeight: size * 0.44 }, fontFor(theme, 'semibold')]}>
-            {initials(p.name)}
-          </Text>
+          {p.avatar ?? (
+            <Text style={[{ color: '#fff', fontSize: size * 0.36, lineHeight: size * 0.44 }, fontFor(theme, 'semibold')]}>
+              {initials(p.name)}
+            </Text>
+          )}
         </Bubble>
       ))}
       {extra > 0 ? (
@@ -186,6 +196,6 @@ export function AvatarStack({ people, size = 44, max = 5, style }: AvatarStackPr
 const styles = StyleSheet.create({
   row: { alignSelf: 'center' },
   slot: { position: 'absolute', left: 0, top: 0, alignItems: 'center' },
-  avatar: { borderWidth: 2.5, alignItems: 'center', justifyContent: 'center' },
+  avatar: { borderWidth: 2.5, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   caption: { marginTop: 4, alignItems: 'center' },
 });

@@ -21,8 +21,12 @@ import {
   type AvatarPerson,
   type StaggerPreset,
 } from 'penguin-ui';
+import { PolarScene, Portrait, palette, type Character, type SceneTime } from '@penguin-ui/brand';
+
+// Scenes dark enough to need light text on top.
+const DARK_TIMES: SceneTime[] = ['night', 'aurora', 'deep'];
 import { useState } from 'react';
-import { Image, View } from 'react-native';
+import { View } from 'react-native';
 
 import { Col, Row } from './kit';
 import type { Demo } from './types';
@@ -74,25 +78,26 @@ function TiltDemo() {
   return (
     <Col style={{ paddingTop: 10 }}>
       <TiltCard style={{ width: 280, height: 360 }}>
-        <View style={{ flex: 1, backgroundColor: '#1A1A22', padding: 24, justifyContent: 'space-between' }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text variant="micro" style={{ color: 'rgba(255,255,255,0.6)' }}>
-              Penguin Pass
-            </Text>
-            <Glyph name="sparkle" size={20} color="#FF6B35" />
+        <PolarScene time="aurora" character="pip" characterScale={0.3} style={{ flex: 1 }}>
+          <View style={{ flex: 1, padding: 22, justifyContent: 'space-between' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text variant="micro" style={{ color: 'rgba(234,241,255,0.7)' }}>
+                Colony pass
+              </Text>
+              <Text variant="micro" mono style={{ color: palette.aurora }}>
+                No. 0042
+              </Text>
+            </View>
+            <View>
+              <Text variant="display" style={{ color: palette.white }}>
+                Pip
+              </Text>
+              <Text variant="caption" style={{ color: 'rgba(234,241,255,0.7)', marginTop: 2 }}>
+                Press and move your finger
+              </Text>
+            </View>
           </View>
-          <View>
-            <Text variant="display" style={{ color: '#fff' }}>
-              Member
-            </Text>
-            <Text variant="caption" style={{ color: 'rgba(255,255,255,0.55)', marginTop: 6 }}>
-              Press anywhere and move your finger
-            </Text>
-          </View>
-          <Text variant="label" mono style={{ color: 'rgba(255,255,255,0.8)', letterSpacing: 3 }}>
-            0042 7781 3390
-          </Text>
-        </View>
+        </PolarScene>
       </TiltCard>
     </Col>
   );
@@ -130,12 +135,12 @@ function FlipDemo() {
   );
 }
 
-const PEOPLE = [
-  { id: 'a', name: 'Mara, 28', note: 'Climbs on weekends', color: '#F4581C' },
-  { id: 'b', name: 'Theo, 31', note: 'Makes very good bread', color: '#3B82F6' },
-  { id: 'c', name: 'Ines, 26', note: 'Plays bass in two bands', color: '#1E9E5A' },
-  { id: 'd', name: 'Kai, 29', note: 'Knows every bird call', color: '#A855F7' },
-  { id: 'e', name: 'Rosa, 33', note: 'Restores old bikes', color: '#D98A0B' },
+const PEOPLE: { id: string; name: string; note: string; character: Character; time: SceneTime }[] = [
+  { id: 'a', name: 'Pip, 4', note: 'Slides everywhere on purpose', character: 'pip', time: 'morning' },
+  { id: 'b', name: 'Mochi, 3', note: 'Naps on any flat ice', character: 'mochi', time: 'dawn' },
+  { id: 'c', name: 'Frost, 6', note: 'Makes very good snow forts', character: 'frost', time: 'dusk' },
+  { id: 'd', name: 'Bubbles, 9', note: 'Knows every current by name', character: 'bubbles', time: 'night' },
+  { id: 'e', name: 'Nori, 7', note: 'Navigates by the aurora', character: 'nori', time: 'aurora' },
 ];
 
 function SwipeDeckDemo() {
@@ -155,14 +160,16 @@ function SwipeDeckDemo() {
           </Text>
         }
         renderCard={(p) => (
-          <View style={{ flex: 1, backgroundColor: p.color, justifyContent: 'flex-end', padding: 22 }}>
-            <Text variant="title" style={{ color: '#fff' }}>
-              {p.name}
-            </Text>
-            <Text variant="body" style={{ color: 'rgba(255,255,255,0.85)' }}>
-              {p.note}
-            </Text>
-          </View>
+          <PolarScene time={p.time} character={p.character} style={{ flex: 1 }}>
+            <View style={{ position: 'absolute', left: 0, right: 0, top: 0, padding: 22 }}>
+              <Text variant="title" style={{ color: DARK_TIMES.includes(p.time) ? palette.white : palette.ink }}>
+                {p.name}
+              </Text>
+              <Text variant="body" style={{ color: DARK_TIMES.includes(p.time) ? 'rgba(234,241,255,0.8)' : 'rgba(11,23,48,0.7)' }}>
+                {p.note}
+              </Text>
+            </View>
+          </PolarScene>
         )}
       />
       <Text variant="caption" tone="muted" align="center">
@@ -172,11 +179,11 @@ function SwipeDeckDemo() {
   );
 }
 
-const WALLET = [
-  { id: 'v', name: 'Visa Signature', last: '4821', color: '#1A1A22' },
-  { id: 'm', name: 'Mastercard', last: '0937', color: '#F4581C' },
-  { id: 'a', name: 'Transit pass', last: '7710', color: '#3B82F6' },
-  { id: 'g', name: 'Gift card', last: '2264', color: '#1E9E5A' },
+const WALLET: { id: string; name: string; last: string; time: SceneTime }[] = [
+  { id: 'v', name: 'Glacier Debit', last: '4821', time: 'night' },
+  { id: 'm', name: 'Floe Credit', last: '0937', time: 'morning' },
+  { id: 'a', name: 'Ferry pass', last: '7710', time: 'dawn' },
+  { id: 'g', name: 'Fish market', last: '2264', time: 'aurora' },
 ];
 
 function CardStackDemo() {
@@ -189,17 +196,23 @@ function CardStackDemo() {
         peek={58}
         style={{ height: 470 }}
         renderCard={(card) => (
-          <View style={{ flex: 1, backgroundColor: card.color, padding: 18, justifyContent: 'space-between' }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text variant="label" style={{ color: '#fff' }}>
-                {card.name}
+          <PolarScene time={card.time} style={{ flex: 1 }}>
+            <View style={{ flex: 1, padding: 18, justifyContent: 'space-between' }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text variant="label" style={{ color: DARK_TIMES.includes(card.time) ? palette.white : palette.ink }}>
+                  {card.name}
+                </Text>
+                <Glyph name="card" size={20} color={DARK_TIMES.includes(card.time) ? palette.white : palette.ink} />
+              </View>
+              <Text
+                variant="label"
+                mono
+                style={{ color: DARK_TIMES.includes(card.time) ? palette.white : palette.ink, letterSpacing: 3 }}
+              >
+                •••• {card.last}
               </Text>
-              <Glyph name="card" size={20} color="rgba(255,255,255,0.8)" />
             </View>
-            <Text variant="label" mono style={{ color: 'rgba(255,255,255,0.85)', letterSpacing: 3 }}>
-              •••• {card.last}
-            </Text>
-          </View>
+          </PolarScene>
         )}
         renderDetail={(card) => (
           <View style={{ gap: 6, paddingHorizontal: 4 }}>
@@ -398,12 +411,12 @@ function StaggerDemo() {
   );
 }
 
-const CHAPTERS = [
-  { id: 'a', n: '01', title: 'Plan the motion', color: '#1A1A22' },
-  { id: 'b', n: '02', title: 'Choose the spring', color: '#F4581C' },
-  { id: 'c', n: '03', title: 'Tie it to the finger', color: '#3B82F6' },
-  { id: 'd', n: '04', title: 'Add a haptic', color: '#1E9E5A' },
-  { id: 'e', n: '05', title: 'Test on a phone', color: '#A855F7' },
+const CHAPTERS: { id: string; n: string; title: string; time: SceneTime; character: Character }[] = [
+  { id: 'a', n: '01', title: 'Plan the motion', time: 'night', character: 'bubbles' },
+  { id: 'b', n: '02', title: 'Choose the spring', time: 'dawn', character: 'mochi' },
+  { id: 'c', n: '03', title: 'Tie it to the finger', time: 'morning', character: 'pip' },
+  { id: 'd', n: '04', title: 'Add a haptic', time: 'dusk', character: 'frost' },
+  { id: 'e', n: '05', title: 'Test on a phone', time: 'aurora', character: 'nori' },
 ];
 
 function StackedScrollDemo() {
@@ -414,56 +427,60 @@ function StackedScrollDemo() {
         keyOf={(c) => c.id}
         cardHeight={230}
         renderItem={(c) => (
-          <View style={{ flex: 1, backgroundColor: c.color, padding: 22, justifyContent: 'space-between' }}>
-            <Text variant="micro" style={{ color: 'rgba(255,255,255,0.65)' }}>
-              Step {c.n}
-            </Text>
-            <Text variant="title" style={{ color: '#fff' }}>
-              {c.title}
-            </Text>
-          </View>
+          <PolarScene time={c.time} character={c.character} characterScale={0.38} flip style={{ flex: 1 }}>
+            <View style={{ position: 'absolute', left: 0, top: 0, padding: 20 }}>
+              <Text variant="micro" style={{ color: DARK_TIMES.includes(c.time) ? 'rgba(234,241,255,0.7)' : 'rgba(11,23,48,0.6)' }}>
+                Step {c.n}
+              </Text>
+              <Text variant="title" style={{ color: DARK_TIMES.includes(c.time) ? palette.white : palette.ink }}>
+                {c.title}
+              </Text>
+            </View>
+          </PolarScene>
         )}
       />
     </View>
   );
 }
 
-const PHOTOS = [
-  { id: '1018', title: 'Valley' },
-  { id: '1015', title: 'River' },
-  { id: '1039', title: 'Falls' },
-  { id: '1043', title: 'Coast' },
-  { id: '1036', title: 'Ridge' },
+const PLACES: { id: string; title: string; time: SceneTime; character: Character }[] = [
+  { id: 'a', title: 'First light', time: 'dawn', character: 'mochi' },
+  { id: 'b', title: 'Open water', time: 'morning', character: 'pip' },
+  { id: 'c', title: 'Long dusk', time: 'dusk', character: 'frost' },
+  { id: 'd', title: 'Polar night', time: 'night', character: 'bubbles' },
+  { id: 'e', title: 'Green sky', time: 'aurora', character: 'nori' },
 ];
 
 function CarouselDemo() {
   return (
     <Col align="stretch" style={{ paddingTop: 10 }}>
       <Carousel
-        items={PHOTOS}
+        items={PLACES}
         keyOf={(p) => p.id}
         height={360}
         renderItem={(p) => (
-          <View style={{ flex: 1 }}>
-            <Image source={{ uri: `https://picsum.photos/id/${p.id}/900/1100` }} style={{ flex: 1 }} resizeMode="cover" />
-            <Text variant="title" style={{ position: 'absolute', left: '22%', bottom: 22, color: '#fff' }}>
+          <PolarScene time={p.time} character={p.character} style={{ flex: 1 }}>
+            <Text
+              variant="title"
+              style={{ position: 'absolute', left: '22%', top: 22, color: DARK_TIMES.includes(p.time) ? palette.white : palette.ink }}
+            >
               {p.title}
             </Text>
-          </View>
+          </PolarScene>
         )}
       />
     </Col>
   );
 }
 
-const ALBUMS = [
-  { id: '1062', title: 'Low Tide' },
-  { id: '1080', title: 'Orchard' },
-  { id: '1084', title: 'Night Bus' },
-  { id: '110', title: 'Paper Moon' },
-  { id: '111', title: 'Signal' },
-  { id: '119', title: 'Glasshouse' },
-  { id: '129', title: 'North' },
+const ALBUMS: { id: string; title: string; time: SceneTime; character?: Character }[] = [
+  { id: 'a', title: 'Low Tide', time: 'dawn' },
+  { id: 'b', title: 'Ice Shelf', time: 'morning', character: 'frost' },
+  { id: 'c', title: 'Night Swim', time: 'night', character: 'bubbles' },
+  { id: 'd', title: 'Paper Moon', time: 'aurora', character: 'nori' },
+  { id: 'e', title: 'Floe', time: 'morning', character: 'pip' },
+  { id: 'f', title: 'Undertow', time: 'deep' },
+  { id: 'g', title: 'North', time: 'dusk', character: 'mochi' },
 ];
 
 function CoverflowDemo() {
@@ -475,7 +492,7 @@ function CoverflowDemo() {
         keyOf={(a) => a.id}
         initialIndex={3}
         onIndexChange={setIndex}
-        renderItem={(a) => <Image source={{ uri: `https://picsum.photos/id/${a.id}/400/400` }} style={{ flex: 1 }} />}
+        renderItem={(a) => <PolarScene time={a.time} character={a.character} style={{ flex: 1 }} />}
       />
       <Text variant="heading" align="center">
         {ALBUMS[index].title}
@@ -487,27 +504,42 @@ function CoverflowDemo() {
   );
 }
 
-const NAMES = ['Mara Quinn', 'Theo Park', 'Ines Rocha', 'Kai Lund', 'Rosa Diaz', 'Omar Haddad', 'June Ito', 'Lena Volk'];
+const CREW: { name: string; character: Character; tint: string }[] = [
+  { name: 'Pip', character: 'pip', tint: '#DCE8FF' },
+  { name: 'Mochi', character: 'mochi', tint: '#E6EEF9' },
+  { name: 'Frost', character: 'frost', tint: '#E4EEFB' },
+  { name: 'Bubbles', character: 'bubbles', tint: '#D8E4FA' },
+  { name: 'Nori', character: 'nori', tint: '#E3EDFF' },
+  { name: 'Skipper', character: 'pip', tint: '#FFE8D6' },
+  { name: 'Pebble', character: 'mochi', tint: '#E9E4FB' },
+  { name: 'Tusk', character: 'nori', tint: '#DDF5EE' },
+];
+
+const crew = (c: (typeof CREW)[number], size = 44): AvatarPerson => ({
+  key: c.name,
+  name: c.name,
+  avatar: <Portrait character={c.character} size={size} background={c.tint} />,
+});
 
 function AvatarStackDemo() {
-  const [people, setPeople] = useState<AvatarPerson[]>(NAMES.slice(0, 4).map((n) => ({ key: n, name: n })));
+  const [people, setPeople] = useState<AvatarPerson[]>(CREW.slice(0, 4).map((c) => crew(c)));
   const add = () => {
-    const next = NAMES.find((n) => !people.some((p) => p.key === n));
-    if (next) setPeople([{ key: next, name: next }, ...people]);
+    const next = CREW.find((c) => !people.some((p) => p.key === c.name));
+    if (next) setPeople([crew(next), ...people]);
   };
   return (
     <Col gap={26}>
       <AvatarStack people={people} max={5} />
       <Row>
         <Button size="sm" onPress={add}>
-          Add person
+          Add a friend
         </Button>
-        <Button size="sm" variant="secondary" onPress={() => setPeople(NAMES.slice(0, 4).map((n) => ({ key: n, name: n })))}>
+        <Button size="sm" variant="secondary" onPress={() => setPeople(CREW.slice(0, 4).map((c) => crew(c)))}>
           Reset
         </Button>
       </Row>
       <Text variant="caption" tone="muted">
-        Tap the avatars to fan them out.
+        Tap the crew to fan them out.
       </Text>
     </Col>
   );

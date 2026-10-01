@@ -19,6 +19,7 @@ import {
   useTheme,
   type IslandState,
 } from 'penguin-ui';
+import { PolarScene, Portrait, palette, type Character, type SceneTime } from '@penguin-ui/brand';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -179,19 +180,19 @@ function IslandDemo() {
         state={state}
         onPress={() => setState(next[state])}
         compact={{
-          leading: <Glyph name="music" size={18} color="#FF6B35" />,
+          leading: <Portrait character="nori" size={24} />,
           trailing: <Bars />,
         }}
         expanded={
           <View style={{ flex: 1, justifyContent: 'space-between' }}>
             <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
-              <View style={{ width: 54, height: 54, borderRadius: 14, backgroundColor: '#FF6B35' }} />
+              <PolarScene time="aurora" character="nori" style={{ width: 54, height: 54, borderRadius: 14 }} />
               <View style={{ flex: 1 }}>
                 <Text variant="label" style={{ color: '#fff' }}>
-                  Midnight Drive
+                  Green Sky
                 </Text>
                 <Text variant="caption" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                  Penguin Collective
+                  Nori and the Floes
                 </Text>
               </View>
               <Bars />
@@ -222,7 +223,7 @@ function Bar({ index }: { index: number }) {
     level.value = withDelay(index * 70, withRepeat(withTiming(1, { duration: period, easing: Easing.inOut(Easing.quad) }), -1, true));
   }, [index, level]);
   const animated = useAnimatedStyle(() => ({ transform: [{ scaleY: 0.3 + level.value * 0.7 }] }));
-  return <Animated.View style={[{ width: 2.5, height: 16, borderRadius: 1.5, backgroundColor: '#FF6B35' }, animated]} />;
+  return <Animated.View style={[{ width: 2.5, height: 16, borderRadius: 1.5, backgroundColor: palette.aurora }, animated]} />;
 }
 
 function Bars() {
@@ -237,27 +238,25 @@ function Bars() {
 
 function MorphingDialogDemo() {
   const theme = useTheme();
-  const art = (color: string, icon: 'music' | 'image') => (
-    <View style={{ flex: 1, backgroundColor: color, alignItems: 'center', justifyContent: 'center' }}>
-      <Glyph name={icon} size={44} color="rgba(255,255,255,0.9)" strokeWidth={1.5} />
-    </View>
+  const art = (time: SceneTime, character: Character) => (
+    <PolarScene time={time} character={character} style={{ flex: 1 }} />
   );
   return (
     <View style={{ flexDirection: 'row', gap: 12, alignSelf: 'stretch', paddingTop: 8 }}>
       <MorphingDialog
         style={{ flex: 1 }}
-        title="Midnight Drive"
-        subtitle="Penguin Collective"
-        image={art('#E8572A', 'music')}
+        title="Green Sky"
+        subtitle="Nori and the Floes"
+        image={art('aurora', 'nori')}
       >
         <Text variant="body" tone="muted">
-          Recorded over one long night in a borrowed studio. Eight tracks, no overdubs, and a drum machine that kept
-          drifting out of time, which the band decided to keep.
+          Recorded over one long polar night on an ice shelf. Eight tracks, no overdubs, and a narwhal on backing vocals
+          who kept drifting out of time, which the band decided to keep.
         </Text>
       </MorphingDialog>
-      <MorphingDialog style={{ flex: 1 }} title="Coastline" subtitle="Field recordings" image={art(theme.dark ? '#2B6CB0' : '#3B82F6', 'image')}>
+      <MorphingDialog style={{ flex: 1 }} title="Ice Shelf" subtitle="Field recordings" image={art('dawn', 'mochi')}>
         <Text variant="body" tone="muted">
-          Waves, gulls and wind, captured along forty kilometres of coast over a single week in autumn.
+          Cracking ice, wind and seal calls, captured along forty kilometres of shelf over a single week in spring.
         </Text>
       </MorphingDialog>
     </View>
@@ -351,11 +350,11 @@ function SkeletonDemo() {
   const row = (i: number) => (
     <View key={i} style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
       <Skeleton loading={loading} width={44} height={44} radius="pill">
-        <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: ['#F4581C', '#3B82F6', '#1E9E5A'][i] }} />
+        <Portrait character={(['pip', 'mochi', 'frost'] as const)[i]} size={44} />
       </Skeleton>
       <View style={{ flex: 1, gap: 8 }}>
         <Skeleton loading={loading} width="62%" height={14}>
-          <Text variant="label">{['Ada Lovelace', 'Grace Hopper', 'Alan Kay'][i]}</Text>
+          <Text variant="label">{['Pip', 'Mochi', 'Frost'][i]}</Text>
         </Skeleton>
         <Skeleton loading={loading} width="88%" height={12}>
           <Text variant="caption" tone="muted">

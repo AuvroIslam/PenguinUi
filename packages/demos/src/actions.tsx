@@ -15,6 +15,7 @@ import {
   Text,
   useTheme,
 } from 'penguin-ui';
+import { palette } from '@penguin-ui/brand';
 import { useState } from 'react';
 import { View } from 'react-native';
 
@@ -128,7 +129,7 @@ function LikeButtonDemo() {
       <LikeButton size={34} liked={liked} onChange={setLiked} count={1284 + (liked ? 1 : 0)} />
       <Row gap={22}>
         <LikeButton defaultLiked />
-        <LikeButton color="#3B82F6" />
+        <LikeButton color={palette.blue} />
       </Row>
     </Col>
   );
@@ -170,7 +171,7 @@ function PopButtonDemo() {
       <PopButton>Start the quiz</PopButton>
       <Row gap={14}>
         <PopButton tone="primary">Check</PopButton>
-        <PopButton color="#22A06B">Correct</PopButton>
+        <PopButton color={palette.beak}>Fish</PopButton>
       </Row>
     </Col>
   );

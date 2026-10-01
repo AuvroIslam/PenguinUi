@@ -12,8 +12,9 @@ import {
   Waveform,
   useTheme,
 } from 'penguin-ui';
+import { PolarScene, Portrait, palette, type Character, type SceneTime } from '@penguin-ui/brand';
 import { useEffect, useMemo, useState } from 'react';
-import { Image, View } from 'react-native';
+import { View } from 'react-native';
 
 import { Col, Row } from './kit';
 import type { Demo } from './types';
@@ -88,14 +89,10 @@ function ImageCompareDemo() {
     <Col align="stretch" style={{ paddingHorizontal: 14, paddingTop: 8 }}>
       <ImageCompare
         height={380}
-        before={
-          <Image
-            source={{ uri: 'https://picsum.photos/id/1016/900/1000?grayscale' }}
-            style={{ flex: 1 }}
-            resizeMode="cover"
-          />
-        }
-        after={<Image source={{ uri: 'https://picsum.photos/id/1016/900/1000' }} style={{ flex: 1 }} resizeMode="cover" />}
+        beforeLabel="Night"
+        afterLabel="Morning"
+        before={<PolarScene time="night" character="frost" style={{ flex: 1 }} />}
+        after={<PolarScene time="morning" character="frost" style={{ flex: 1 }} />}
       />
     </Col>
   );
@@ -133,14 +130,15 @@ function VoiceDemo() {
   );
 }
 
-const STORY_IDS = ['1025', '1074', '1084', '237'];
+const STORIES: { id: string; time: SceneTime; character: Character; line: string }[] = [
+  { id: 'a', time: 'dawn', character: 'pip', line: 'Up before the sun' },
+  { id: 'b', time: 'morning', character: 'mochi', line: 'Found a warm rock' },
+  { id: 'c', time: 'deep', character: 'nori', line: 'Went for a swim' },
+  { id: 'd', time: 'aurora', character: 'bubbles', line: 'The sky turned green' },
+];
 
 function StoriesDemo() {
   const [round, setRound] = useState(0);
-  // Fetch every story up front so the next one is ready the moment it is shown.
-  useEffect(() => {
-    STORY_IDS.forEach((id) => Image.prefetch(`https://picsum.photos/id/${id}/700/1100`));
-  }, []);
   return (
     <Col align="stretch" style={{ paddingHorizontal: 30, paddingTop: 4 }}>
       <Stories
@@ -149,25 +147,24 @@ function StoriesDemo() {
         onEnd={() => setRound((r) => r + 1)}
         header={
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: '#FF6B35', borderWidth: 2, borderColor: '#fff' }} />
+            <Portrait character="pip" size={30} style={{ borderWidth: 2, borderColor: palette.white }} />
             <Text variant="label" style={{ color: '#fff' }}>
-              penguin.ui
+              pip.waddles
             </Text>
             <Text variant="caption" style={{ color: 'rgba(255,255,255,0.7)' }}>
               2h
             </Text>
           </View>
         }
-        stories={STORY_IDS.map((id, i) => ({
-          key: id,
+        stories={STORIES.map((s) => ({
+          key: s.id,
           duration: 4000,
           content: (
-            <View style={{ flex: 1 }}>
-              <Image source={{ uri: `https://picsum.photos/id/${id}/700/1100` }} style={{ flex: 1 }} resizeMode="cover" />
-              <Text variant="title" style={{ position: 'absolute', left: 18, bottom: 26, color: '#fff' }}>
-                Story {i + 1}
+            <PolarScene time={s.time} character={s.character} characterScale={0.32} style={{ flex: 1 }}>
+              <Text variant="title" style={{ position: 'absolute', left: 18, right: 18, top: 86, color: '#fff' }}>
+                {s.line}
               </Text>
-            </View>
+            </PolarScene>
           ),
         }))}
       />
@@ -188,11 +185,11 @@ function MiniPlayerDemo() {
     <View style={{ alignSelf: 'stretch', paddingHorizontal: 12, paddingBottom: 6 }}>
       <MiniPlayer
         height={540}
-        title="Midnight Drive"
-        artist="Penguin Collective"
+        title="Green Sky"
+        artist="Nori and the Floes"
         playing={playing}
         onTogglePlay={() => setPlaying((p) => !p)}
-        artwork={<Image source={{ uri: 'https://picsum.photos/id/1062/800/800' }} style={{ flex: 1 }} resizeMode="cover" />}
+        artwork={<PolarScene time="aurora" character="nori" style={{ flex: 1 }} />}
       >
         <Waveform samples={samples} progress={progress} onSeek={setProgress} height={36} />
       </MiniPlayer>
@@ -246,13 +243,13 @@ function RingsDemo() {
   ];
   const d = days[day];
   const rings = [
-    { key: 'move', label: 'Move', value: d.move, color: '#FA114F' },
-    { key: 'exercise', label: 'Exercise', value: d.exercise, color: '#A6FF00' },
-    { key: 'stand', label: 'Stand', value: d.stand, color: '#00F0FF' },
+    { key: 'move', label: 'Swim', value: d.move, color: palette.beak },
+    { key: 'exercise', label: 'Fish', value: d.exercise, color: palette.aurora },
+    { key: 'stand', label: 'Waddle', value: d.stand, color: palette.blueBright },
   ];
   return (
     <Col gap={20}>
-      <View style={{ padding: 18, borderRadius: 32, backgroundColor: '#0B0B0D' }}>
+      <View style={{ padding: 18, borderRadius: 32, backgroundColor: palette.ink }}>
         <ActivityRings rings={rings} size={200} />
       </View>
       <Row>

@@ -84,8 +84,9 @@ export function AuroraBackground({
   const [size, setSize] = useState({ width: 0, height: 0 });
   const clock = useSharedValue(0.13);
 
-  const tints = palette ?? (theme.dark ? ['#FF6B35', '#7C3AED', '#0EA5E9', '#DB2777'] : ['#FDBA74', '#C4B5FD', '#7DD3FC', '#F9A8D4']);
-  const ground = base ?? (theme.dark ? '#08080A' : '#FFF8F2');
+  // A real aurora by default: green and blue light on the polar night, or pale sky and ice by day.
+  const tints = palette ?? (theme.dark ? ['#3DDAB4', '#5B8DFF', '#2F6BF0', '#8A7BFF'] : ['#9CC2FF', '#BDEFE3', '#C9C3F2', '#FFD7C2']);
+  const ground = base ?? (theme.dark ? '#070C18' : '#F4F7FB');
 
   useEffect(() => {
     if (reduced) return;
