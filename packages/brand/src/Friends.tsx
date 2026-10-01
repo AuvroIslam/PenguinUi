@@ -3,7 +3,8 @@ import { View, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { Circle, Defs, Ellipse, LinearGradient, Path, Stop } from 'react-native-svg';
 
-import { Layer, origin, type ViewBox } from './Layer';
+import { Eye } from './Eyes';
+import { Layer, type ViewBox } from './Layer';
 import { useBlink, useBreath } from './motion';
 import { palette as p } from './palette';
 
@@ -16,28 +17,17 @@ export type FriendProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-type Rig = {
-  vb: ViewBox;
-  /** Where the eyes are, so a blink folds them about the right line. */
-  eyeLine: number;
-  eyeX: number;
-};
+type Rig = { vb: ViewBox };
 
-function useRig({ vb, eyeLine, eyeX }: Rig, size: number, breathe: boolean) {
+function useRig({ vb }: Rig, size: number, breathe: boolean) {
   const blink = useBlink();
   const breath = useBreath(3000, breathe);
   const k = size / vb.w;
-  // Worked out on the JS thread; the animated style below runs on the UI thread.
-  const eyeOrigin = origin(vb, eyeX, eyeLine);
   const body = useAnimatedStyle(() => ({
     transformOrigin: '50% 95%',
     transform: [{ translateY: -breath.value * 2 * k }, { scaleY: 1 + breath.value * 0.016 }],
   }));
-  const eyes = useAnimatedStyle(() => ({
-    transformOrigin: eyeOrigin,
-    transform: [{ scaleY: blink.value }],
-  }));
-  return { body, eyes, height: (size * vb.h) / vb.w };
+  return { body, blink, height: (size * vb.h) / vb.w };
 }
 
 function Shell({ size, height, style, children }: { size: number; height: number; style?: StyleProp<ViewStyle>; children: ReactNode }) {
@@ -46,11 +36,11 @@ function Shell({ size, height, style, children }: { size: number; height: number
 
 const fillAll = { position: 'absolute' as const, left: 0, right: 0, top: 0, bottom: 0 };
 
-const SEAL: Rig = { vb: { w: 220, h: 180 }, eyeLine: 90, eyeX: 86 };
+const SEAL: Rig = { vb: { w: 220, h: 180 } };
 
 /** Mochi, the seal pup. Lies on her belly with her round head up, all cheeks and whiskers. */
 export function Mochi({ size = 160, breathe = true, id = 'mochi', style }: FriendProps) {
-  const { body, eyes, height } = useRig(SEAL, size, breathe);
+  const { body, blink, height } = useRig(SEAL, size, breathe);
   const vb = SEAL.vb;
   return (
     <Shell size={size} height={height} style={style}>
@@ -80,24 +70,20 @@ export function Mochi({ size = 160, breathe = true, id = 'mochi', style }: Frien
           <Ellipse cx={54} cy={108} rx={8} ry={5} fill={p.blush} opacity={0.85} />
           <Ellipse cx={118} cy={108} rx={8} ry={5} fill={p.blush} opacity={0.85} />
         </Layer>
-        <Layer vb={vb} style={eyes}>
-          <Ellipse cx={66} cy={90} rx={8.5} ry={10} fill={p.ink} />
-          <Ellipse cx={106} cy={90} rx={8.5} ry={10} fill={p.ink} />
-          <Circle cx={63} cy={85.5} r={3.2} fill={p.white} />
-          <Circle cx={103} cy={85.5} r={3.2} fill={p.white} />
-          <Circle cx={68.5} cy={94} r={1.4} fill={p.white} />
-          <Circle cx={108.5} cy={94} r={1.4} fill={p.white} />
+        <Layer vb={vb}>
+          <Eye spec={{ cx: 66, cy: 90, rx: 8.5, ry: 10, glint: [-3, -4.5, 3.2], spark: [2.5, 4, 1.4] }} blink={blink} />
+          <Eye spec={{ cx: 106, cy: 90, rx: 8.5, ry: 10, glint: [-3, -4.5, 3.2], spark: [2.5, 4, 1.4] }} blink={blink} />
         </Layer>
       </Animated.View>
     </Shell>
   );
 }
 
-const BEAR: Rig = { vb: { w: 200, h: 200 }, eyeLine: 92, eyeX: 100 };
+const BEAR: Rig = { vb: { w: 200, h: 200 } };
 
 /** Frost, the polar bear cub. Round ears, a soft snout and a very calm face. */
 export function Frost({ size = 160, breathe = true, id = 'frost', style }: FriendProps) {
-  const { body, eyes, height } = useRig(BEAR, size, breathe);
+  const { body, blink, height } = useRig(BEAR, size, breathe);
   const vb = BEAR.vb;
   const line = '#C3D5EF';
   return (
@@ -131,24 +117,20 @@ export function Frost({ size = 160, breathe = true, id = 'frost', style }: Frien
           <Path d="M92 107 C 96 104 104 104 108 107 C 106 112 103 114 100 114 C 97 114 94 112 92 107 Z" fill={p.navy} />
           <Path d="M100 114 L 100 118 M 94 120 C 97 122.5 103 122.5 106 120" stroke={p.navy} strokeWidth={1.6} fill="none" strokeLinecap="round" />
         </Layer>
-        <Layer vb={vb} style={eyes}>
-          <Ellipse cx={78} cy={92} rx={7.5} ry={9} fill={p.ink} />
-          <Ellipse cx={122} cy={92} rx={7.5} ry={9} fill={p.ink} />
-          <Circle cx={75.5} cy={88} r={2.8} fill={p.white} />
-          <Circle cx={119.5} cy={88} r={2.8} fill={p.white} />
-          <Circle cx={80.5} cy={95.5} r={1.2} fill={p.white} />
-          <Circle cx={124.5} cy={95.5} r={1.2} fill={p.white} />
+        <Layer vb={vb}>
+          <Eye spec={{ cx: 78, cy: 92, rx: 7.5, ry: 9, glint: [-2.5, -4, 2.8], spark: [2.5, 3.5, 1.2] }} blink={blink} />
+          <Eye spec={{ cx: 122, cy: 92, rx: 7.5, ry: 9, glint: [-2.5, -4, 2.8], spark: [2.5, 3.5, 1.2] }} blink={blink} />
         </Layer>
       </Animated.View>
     </Shell>
   );
 }
 
-const ORCA: Rig = { vb: { w: 240, h: 150 }, eyeLine: 84, eyeX: 66 };
+const ORCA: Rig = { vb: { w: 240, h: 150 } };
 
 /** Bubbles, the orca. Deep navy with a white chin, the fastest swimmer of the group. */
 export function Bubbles({ size = 200, breathe = true, style }: FriendProps) {
-  const { body, eyes, height } = useRig(ORCA, size, breathe);
+  const { body, blink, height } = useRig(ORCA, size, breathe);
   const vb = ORCA.vb;
   return (
     <Shell size={size} height={height} style={style}>
@@ -166,20 +148,19 @@ export function Bubbles({ size = 200, breathe = true, style }: FriendProps) {
           <Path d="M30 96 C 36 101 44 101 48 97" stroke="#9FB4D6" strokeWidth={1.8} fill="none" strokeLinecap="round" />
           <Path d="M100 122 C 96 136 104 146 120 144 C 114 136 112 128 114 120 Z" fill={p.navy} />
         </Layer>
-        <Layer vb={vb} style={eyes}>
-          <Ellipse cx={66} cy={84} rx={6.5} ry={7.5} fill={p.ink} stroke="#2A4380" strokeWidth={1} />
-          <Circle cx={64} cy={81} r={2.4} fill={p.white} />
+        <Layer vb={vb}>
+          <Eye spec={{ cx: 66, cy: 84, rx: 6.5, ry: 7.5, glint: [-2, -3, 2.4] }} blink={blink} stroke="#2A4380" />
         </Layer>
       </Animated.View>
     </Shell>
   );
 }
 
-const NARWHAL: Rig = { vb: { w: 240, h: 160 }, eyeLine: 94, eyeX: 72 };
+const NARWHAL: Rig = { vb: { w: 240, h: 160 } };
 
 /** Nori, the narwhal. Sky blue with a spiral tusk and freckles of light. */
 export function Nori({ size = 200, breathe = true, id = 'nori', style }: FriendProps) {
-  const { body, eyes, height } = useRig(NARWHAL, size, breathe);
+  const { body, blink, height } = useRig(NARWHAL, size, breathe);
   const vb = NARWHAL.vb;
   return (
     <Shell size={size} height={height} style={style}>
@@ -207,9 +188,8 @@ export function Nori({ size = 200, breathe = true, id = 'nori', style }: FriendP
           <Path d="M40 108 C 45 112 52 112 56 108" stroke="#3E68C9" strokeWidth={1.8} fill="none" strokeLinecap="round" />
           <Path d="M104 130 C 100 144 108 152 124 150 C 118 142 116 134 118 128 Z" fill="#5A86E8" />
         </Layer>
-        <Layer vb={vb} style={eyes}>
-          <Ellipse cx={72} cy={94} rx={6.5} ry={7.5} fill={p.ink} />
-          <Circle cx={70} cy={91} r={2.4} fill={p.white} />
+        <Layer vb={vb}>
+          <Eye spec={{ cx: 72, cy: 94, rx: 6.5, ry: 7.5, glint: [-2, -3, 2.4] }} blink={blink} />
         </Layer>
       </Animated.View>
     </Shell>

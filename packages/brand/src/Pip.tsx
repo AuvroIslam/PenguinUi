@@ -8,6 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Circle, Defs, Ellipse, LinearGradient, Path, Stop } from 'react-native-svg';
 
+import { Eye, type EyeSpec } from './Eyes';
 import { Layer, origin, type ViewBox } from './Layer';
 import { useBlink, useBreath, useWave } from './motion';
 import { palette as p } from './palette';
@@ -33,7 +34,10 @@ export type PipProps = {
 const VB: ViewBox = { w: 200, h: 220 };
 // Pivot points, worked out once: animated styles run on the UI thread and cannot call back
 // into ordinary JavaScript functions.
-const EYES = origin(VB, 100, 104);
+const PIP_EYES: [EyeSpec, EyeSpec] = [
+  { cx: 78, cy: 104, rx: 9, ry: 11, glint: [-3, -5, 3.6], spark: [3, 5, 1.6] },
+  { cx: 122, cy: 104, rx: 9, ry: 11, glint: [-3, -5, 3.6], spark: [3, 5, 1.6] },
+];
 const FLIP_L = origin(VB, 38, 122);
 const FLIP_R = origin(VB, 162, 122);
 const BEAK = origin(VB, 100, 116);
@@ -69,16 +73,6 @@ export function Pip({ size = 160, mood = 'idle', waving = false, lookX, lookY, b
       { scaleX: 1 - breath.value * 0.008 },
       // A slight lean toward whatever he is looking at.
       { rotate: `${lx.value * 3}deg` },
-    ],
-  }));
-  const eyes = useAnimatedStyle(() => ({
-    opacity: 1 - happy.value,
-    transformOrigin: EYES,
-    transform: [
-      { translateX: lx.value * 4.5 * k },
-      { translateY: ly.value * 3.5 * k },
-      { scaleY: blink.value * (1 + surprise.value * 0.18) },
-      { scaleX: 1 + surprise.value * 0.12 },
     ],
   }));
   const arcs = useAnimatedStyle(() => ({ opacity: happy.value }));
@@ -136,13 +130,9 @@ export function Pip({ size = 160, mood = 'idle', waving = false, lookX, lookY, b
           <Path d="M89 117 C 95 112 105 112 111 117 C 108 126 104 130 100 130 C 96 130 92 126 89 117 Z" fill={p.beak} />
           <Path d="M91 119 C 96 121 104 121 109 119" stroke={p.beakDeep} strokeWidth={1.6} fill="none" strokeLinecap="round" />
         </Layer>
-        <Layer vb={VB} style={eyes}>
-          <Ellipse cx={78} cy={104} rx={9} ry={11} fill={p.ink} />
-          <Ellipse cx={122} cy={104} rx={9} ry={11} fill={p.ink} />
-          <Circle cx={75} cy={99} r={3.6} fill={p.white} />
-          <Circle cx={119} cy={99} r={3.6} fill={p.white} />
-          <Circle cx={81} cy={109} r={1.6} fill={p.white} />
-          <Circle cx={125} cy={109} r={1.6} fill={p.white} />
+        <Layer vb={VB}>
+          <Eye spec={PIP_EYES[0]} blink={blink} lookX={lx} lookY={ly} surprise={surprise} hidden={happy} />
+          <Eye spec={PIP_EYES[1]} blink={blink} lookX={lx} lookY={ly} surprise={surprise} hidden={happy} />
         </Layer>
         <Layer vb={VB} style={arcs}>
           <Path d="M69 106 C 72 97 84 97 87 106" stroke={p.ink} strokeWidth={4.5} fill="none" strokeLinecap="round" />

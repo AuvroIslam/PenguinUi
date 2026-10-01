@@ -5,6 +5,7 @@ export * from './Friends';
 export * from './PolarScene';
 export * from './Portrait';
 export { Layer, origin, type ViewBox } from './Layer';
+export { Eye, type EyeSpec } from './Eyes';
 
 /** The two typefaces of the brand, keyed the way `@expo-google-fonts` exports them. */
 export const fonts = {
