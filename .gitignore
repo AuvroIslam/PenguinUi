@@ -52,3 +52,5 @@ apps/web/.next/
 apps/web/out/
 apps/web/public/preview/
 apps/web/next-env.d.ts
+
+.vercel

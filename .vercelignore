@@ -1,0 +1,8 @@
+.env
+.env*
+node_modules
+apps/web/.next
+apps/web/out
+apps/web/public/preview
+apps/showcase/dist
+apps/showcase/.expo

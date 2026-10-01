@@ -9,4 +9,6 @@ npm run build:web    # exports the live previews, then the site, into apps/web/o
 
 Live previews are the real components: the showcase app's web build is exported to
 `public/preview` and every phone on the site is an iframe of `/preview/?c=<id>`.
-Set `BASE_PATH=/PenguinUi` when building for GitHub Pages.
+Hosted on Vercel at https://penguinui-eight.vercel.app, redeployed on every push to `main`.
+`vercel.json` at the repo root runs `build:web` and serves `apps/web/out`.
+Set `BASE_PATH=/PenguinUi` only when building for GitHub Pages, which serves it under the repo name.
