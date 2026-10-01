@@ -4,6 +4,7 @@ import { Bricolage_Grotesque, Martian_Mono } from 'next/font/google';
 import { Footer } from '@/components/site/Footer';
 import { Nav } from '@/components/site/Nav';
 import { SmoothScroll } from '@/components/site/SmoothScroll';
+import { catalog } from '@/lib/catalog';
 
 import './globals.css';
 
@@ -38,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${bricolage.variable} ${martian.variable}`}>
       <body className="grain min-h-dvh overflow-x-clip">
         <SmoothScroll />
-        <Nav />
+        <Nav items={catalog().map(({ id, name, category, summary }) => ({ id, name, category, summary }))} />
         {children}
         <Footer />
       </body>

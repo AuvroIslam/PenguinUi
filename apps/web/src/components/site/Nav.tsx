@@ -1,14 +1,15 @@
 'use client';
 
-import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 
 import { GITHUB } from '@/lib/site';
 
 import { PipMark } from '../brand/Pip';
-import { ArrowUpRight, RepoMark } from './Marks';
+import { ArrowUpRight, RepoMark, SearchMark } from './Marks';
+import { SearchPalette, type NavItem } from './SearchPalette';
 
 const LINKS = [
   { href: '/components/', label: 'Components' },
@@ -16,138 +17,221 @@ const LINKS = [
   { href: '/crew/', label: 'The crew' },
 ];
 
+const glide = { type: 'spring' as const, stiffness: 440, damping: 36 };
+
+const onMac = () => /Mac|iPhone|iPad/.test(navigator.platform);
+const noSubscribe = () => () => {};
+
+/** Typing in a field should never open the palette. */
+function typing(target: EventTarget | null) {
+  const el = target as HTMLElement | null;
+  return !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+}
+
 /**
- * A floating pill that tightens and gains a frosted backing once the page scrolls, with one
- * highlight that glides between links on hover instead of each link lighting on its own. On
- * phones the links fold into a menu: two strokes turn into a cross and a panel drops in.
+ * One small island of glass at the top of the page, solid from the first frame. The links sit
+ * in a recessed track where a single highlight rests on the current page and glides to
+ * whichever link is pointed at, then glides home again. Search opens a palette of every
+ * component (Ctrl K, or / anywhere). On phones the island itself grows downward into the menu,
+ * the way the Dynamic Island opens, rather than dropping a separate sheet.
  */
-export function Nav() {
+export function Nav({ items }: { items: NavItem[] }) {
   const path = usePathname();
-  const { scrollY } = useScroll();
-  const [scrolled, setScrolled] = useState(false);
   const [hover, setHover] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  useMotionValueEvent(scrollY, 'change', (y) => setScrolled(y > 24));
-  // Close the menu whenever the page changes, back and forward included.
-  const [menuPath, setMenuPath] = useState(path);
-  if (menuPath !== path) {
-    setMenuPath(path);
+  const [searching, setSearching] = useState(false);
+  const mac = useSyncExternalStore(noSubscribe, onMac, () => false);
+
+  // Close everything whenever the page changes, back and forward included.
+  const [shownPath, setShownPath] = useState(path);
+  if (shownPath !== path) {
+    setShownPath(path);
     setOpen(false);
+    setSearching(false);
   }
+
   useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setOpen(false);
+        setSearching((s) => !s);
+      } else if (e.key === '/' && !typing(e.target)) {
+        e.preventDefault();
+        setOpen(false);
+        setSearching(true);
+      } else if (e.key === 'Escape') {
+        setOpen(false);
+      }
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [open]);
-  const solid = scrolled || open;
+  }, []);
+
+  const current = LINKS.find((l) => path?.startsWith(l.href.replace(/\/$/, '')))?.href ?? null;
+  const lit = hover ?? current;
+  const search = () => {
+    setOpen(false);
+    setSearching(true);
+  };
 
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex flex-col items-center px-4 pt-4">
-      <motion.nav
-        initial={{ y: -40, opacity: 0 }}
+    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-3 sm:px-4 sm:pt-4">
+      <motion.div
+        initial={{ y: -28, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 220, damping: 26, delay: 0.15 }}
-        className="pointer-events-auto flex w-full max-w-5xl items-center justify-between rounded-full border px-2 py-2 transition-[background-color,border-color,box-shadow] duration-500"
-        style={{
-          backgroundColor: solid ? 'rgba(10,18,34,0.72)' : 'rgba(10,18,34,0)',
-          borderColor: solid ? 'rgba(214,228,255,0.1)' : 'rgba(214,228,255,0)',
-          backdropFilter: solid ? 'blur(18px) saturate(1.4)' : 'none',
-          boxShadow: solid ? '0 12px 40px -12px rgba(0,0,0,0.6)' : 'none',
-        }}
+        className="pointer-events-auto relative w-full max-w-md overflow-hidden rounded-[27px] border border-white/[0.08] bg-[rgba(8,14,28,0.76)] shadow-[0_14px_44px_-14px_rgba(0,0,0,0.7)] backdrop-blur-xl backdrop-saturate-150 md:w-auto md:max-w-none"
       >
-        <Link href="/" className="flex items-center gap-2.5 rounded-full py-1 pl-2 pr-3">
-          <PipMark size={28} />
-          <span className="display-wide text-[19px]">PenguinUi</span>
-        </Link>
-        <div className="hidden items-center md:flex" onMouseLeave={() => setHover(null)}>
-          {LINKS.map((l) => {
-            const active = path?.startsWith(l.href.replace(/\/$/, ''));
-            return (
+        {/* Light catching the top edge, like the rim of a sheet of ice. */}
+        <span aria-hidden className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+
+        <nav className="flex items-center gap-1 p-1.5" aria-label="Main">
+          <Link href="/" className="group flex items-center gap-2.5 rounded-full py-0.5 pl-0.5 pr-3 transition-colors hover:bg-white/[0.04]">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-b from-floe to-deep ring-1 ring-inset ring-white/10 transition-transform duration-500 ease-[cubic-bezier(.32,.72,0,1)] group-hover:-rotate-12">
+              <PipMark size={23} />
+            </span>
+            <span className="display-wide text-[18px] leading-none">PenguinUi</span>
+          </Link>
+
+          <span aria-hidden className="mx-1 hidden h-5 w-px bg-white/10 md:block" />
+
+          <div
+            className="hidden items-center rounded-full bg-black/25 p-1 ring-1 ring-inset ring-white/[0.05] md:flex"
+            onMouseLeave={() => setHover(null)}
+          >
+            {LINKS.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
+                aria-current={current === l.href ? 'page' : undefined}
                 onMouseEnter={() => setHover(l.href)}
-                className={`relative rounded-full px-4 py-2 text-[14.5px] transition-colors ${active ? 'text-snow' : 'text-frost hover:text-snow'}`}
+                onFocus={() => setHover(l.href)}
+                onBlur={() => setHover(null)}
+                className={`relative rounded-full px-3.5 py-1.5 text-[14px] transition-colors duration-200 ${lit === l.href ? 'text-snow' : 'text-mist hover:text-snow'}`}
               >
-                {hover === l.href ? (
-                  <motion.span layoutId="nav-hover" className="absolute inset-0 rounded-full bg-white/[0.06]" transition={{ type: 'spring', stiffness: 380, damping: 32 }} />
+                {lit === l.href ? (
+                  <motion.span
+                    layoutId="nav-lit"
+                    className="absolute inset-0 rounded-full bg-white/[0.09] shadow-[inset_0_1px_0_rgba(214,228,255,0.1)]"
+                    transition={glide}
+                  />
                 ) : null}
-                <span className="relative">{l.label}</span>
+                <span className="relative flex items-center gap-1.5">
+                  {l.label}
+                  {l.href === '/components/' ? <span className="mono text-[10px] text-fog">{items.length}</span> : null}
+                </span>
               </Link>
-            );
-          })}
-        </div>
-        <div className="flex items-center gap-1.5">
+            ))}
+          </div>
+
+          <span aria-hidden className="mx-1 hidden h-5 w-px bg-white/10 md:block" />
+
+          <button
+            type="button"
+            onClick={search}
+            className="hidden items-center gap-2 rounded-full bg-white/[0.03] py-1.5 pl-3 pr-1.5 text-[13.5px] text-mist ring-1 ring-inset ring-white/[0.07] transition-colors hover:bg-white/[0.06] hover:text-snow md:flex"
+          >
+            <SearchMark size={15} />
+            Search
+            <kbd className="mono ml-3 rounded-full bg-white/[0.07] px-2 py-0.5 text-[10px] text-frost">{mac ? '⌘ K' : 'Ctrl K'}</kbd>
+          </button>
           <a
             href={GITHUB}
             target="_blank"
             rel="noreferrer"
-            className="hidden items-center gap-2 rounded-full px-3.5 py-2 text-[14px] text-frost transition-colors hover:text-snow sm:flex"
+            aria-label="PenguinUi on GitHub"
+            className="hidden h-9 items-center gap-2 rounded-full px-2.5 text-[13.5px] text-frost transition-colors hover:bg-white/[0.07] hover:text-snow md:flex lg:pr-3.5"
           >
             <RepoMark size={17} />
-            GitHub
+            <span className="hidden lg:inline">GitHub</span>
           </a>
-          <Link
-            href="/components/"
-            className="group flex items-center gap-1.5 rounded-full bg-snow py-2 pl-4 pr-3 text-[14px] font-semibold text-night transition-transform active:scale-95"
+
+          <span className="flex-1 md:hidden" />
+          <button
+            type="button"
+            onClick={search}
+            aria-label="Search components"
+            className="grid h-9 w-9 place-items-center rounded-full text-frost transition-colors hover:bg-white/[0.07] md:hidden"
           >
-            Browse
-            <span className="transition-transform duration-300 ease-[cubic-bezier(.32,.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-              <ArrowUpRight size={16} strokeWidth={2.2} />
-            </span>
-          </Link>
+            <SearchMark size={17} />
+          </button>
           <button
             type="button"
             aria-label={open ? 'Close menu' : 'Open menu'}
             aria-expanded={open}
             onClick={() => setOpen((o) => !o)}
-            className="grid h-9 w-9 place-items-center rounded-full text-snow transition-colors hover:bg-white/[0.06] md:hidden"
+            className="grid h-9 w-9 place-items-center rounded-full bg-white/[0.05] text-snow ring-1 ring-inset ring-white/[0.07] transition-colors hover:bg-white/[0.09] md:hidden"
           >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-              <motion.line x1="3" x2="15" y1="6" y2="6" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" animate={open ? { y1: 9, y2: 9, rotate: 45 } : { y1: 6, y2: 6, rotate: 0 }} style={{ originX: '9px', originY: '9px', transformBox: 'view-box' }} transition={{ type: 'spring', stiffness: 420, damping: 30 }} />
-              <motion.line x1="3" x2="15" y1="12" y2="12" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" animate={open ? { y1: 9, y2: 9, rotate: -45 } : { y1: 12, y2: 12, rotate: 0 }} style={{ originX: '9px', originY: '9px', transformBox: 'view-box' }} transition={{ type: 'spring', stiffness: 420, damping: 30 }} />
+            <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden>
+              {/* Both strokes are drawn through the middle and moved by transforms, so they meet
+                  there and turn into a cross without animating the lines' own attributes. */}
+              {[-1, 1].map((side) => (
+                <motion.line
+                  key={side}
+                  x1="3"
+                  x2="15"
+                  y1="9"
+                  y2="9"
+                  stroke="currentColor"
+                  strokeWidth="1.9"
+                  strokeLinecap="round"
+                  initial={false}
+                  animate={open ? { y: 0, rotate: side * -45 } : { y: side * 3, rotate: 0 }}
+                  style={{ originX: '9px', originY: '9px', transformBox: 'view-box' }}
+                  transition={{ type: 'spring', stiffness: 420, damping: 30 }}
+                />
+              ))}
             </svg>
           </button>
-        </div>
-      </motion.nav>
-      <AnimatePresence>
-        {open ? (
-          <motion.div
-            key="menu"
-            initial={{ opacity: 0, y: -12, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-            className="pointer-events-auto mt-2 w-full max-w-5xl origin-top rounded-[28px] border border-line bg-[rgba(10,18,34,0.92)] p-3 shadow-[0_24px_60px_-16px_rgba(0,0,0,0.7)] backdrop-blur-xl md:hidden"
-          >
-            {[...LINKS, { href: GITHUB, label: 'GitHub' }].map((l, i) => {
-              const external = l.href.startsWith('http');
-              const active = !external && path?.startsWith(l.href.replace(/\/$/, ''));
-              const inner = (
-                <motion.span
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 26, delay: 0.03 + i * 0.04 }}
-                  className={`flex items-center justify-between rounded-2xl px-4 py-3.5 transition-colors ${active ? 'bg-white/[0.06] text-snow' : 'text-frost active:bg-white/[0.06]'}`}
-                >
-                  <span className="display-wide text-[22px]">{l.label}</span>
-                  {external ? <RepoMark size={18} /> : <ArrowUpRight size={18} strokeWidth={2} />}
-                </motion.span>
-              );
-              return external ? (
-                <a key={l.href} href={l.href} target="_blank" rel="noreferrer" className="block">
-                  {inner}
-                </a>
-              ) : (
-                <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="block">
-                  {inner}
-                </Link>
-              );
-            })}
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+        </nav>
+
+        <AnimatePresence initial={false}>
+          {open ? (
+            <motion.div
+              key="menu"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 36 }}
+              className="md:hidden"
+            >
+              <div className="mx-1.5 h-px bg-white/[0.07]" />
+              <div className="p-1.5">
+                {[...LINKS, { href: GITHUB, label: 'GitHub' }].map((l, i) => {
+                  const external = l.href.startsWith('http');
+                  const here = current === l.href;
+                  const inner = (
+                    <motion.span
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ type: 'spring', stiffness: 320, damping: 26, delay: 0.04 + i * 0.04 }}
+                      className={`flex items-center justify-between rounded-[20px] px-4 py-3.5 transition-colors ${here ? 'bg-white/[0.07] text-snow' : 'text-frost active:bg-white/[0.06]'}`}
+                    >
+                      <span className="flex items-baseline gap-2">
+                        <span className="display-wide text-[22px]">{l.label}</span>
+                        {l.href === '/components/' ? <span className="mono text-[11px] text-fog">{items.length}</span> : null}
+                      </span>
+                      {external ? <RepoMark size={18} /> : <ArrowUpRight size={18} strokeWidth={2} />}
+                    </motion.span>
+                  );
+                  return external ? (
+                    <a key={l.href} href={l.href} target="_blank" rel="noreferrer" className="block">
+                      {inner}
+                    </a>
+                  ) : (
+                    <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="block">
+                      {inner}
+                    </Link>
+                  );
+                })}
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </motion.div>
+
+      <AnimatePresence>{searching ? <SearchPalette key="search" items={items} onClose={() => setSearching(false)} /> : null}</AnimatePresence>
     </header>
   );
 }
