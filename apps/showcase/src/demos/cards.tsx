@@ -1,4 +1,17 @@
-import { Card, FlipCard, Glyph, SwipeDeck, Text, TiltCard, useTheme } from 'penguin-ui';
+import {
+  Accordion,
+  Card,
+  CardStack,
+  ExpandableCard,
+  FlipCard,
+  Glyph,
+  ReorderList,
+  SwipeDeck,
+  SwipeableRow,
+  Text,
+  TiltCard,
+  useTheme,
+} from 'penguin-ui';
 import { useState } from 'react';
 import { View } from 'react-native';
 
@@ -150,6 +163,166 @@ function SwipeDeckDemo() {
   );
 }
 
+const WALLET = [
+  { id: 'v', name: 'Visa Signature', last: '4821', color: '#1A1A22' },
+  { id: 'm', name: 'Mastercard', last: '0937', color: '#F4581C' },
+  { id: 'a', name: 'Transit pass', last: '7710', color: '#3B82F6' },
+  { id: 'g', name: 'Gift card', last: '2264', color: '#1E9E5A' },
+];
+
+function CardStackDemo() {
+  return (
+    <Col align="stretch" style={{ paddingHorizontal: 18, paddingTop: 10 }}>
+      <CardStack
+        items={WALLET}
+        keyOf={(c) => c.id}
+        cardHeight={190}
+        peek={58}
+        style={{ height: 470 }}
+        renderCard={(card) => (
+          <View style={{ flex: 1, backgroundColor: card.color, padding: 18, justifyContent: 'space-between' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text variant="label" style={{ color: '#fff' }}>
+                {card.name}
+              </Text>
+              <Glyph name="card" size={20} color="rgba(255,255,255,0.8)" />
+            </View>
+            <Text variant="label" mono style={{ color: 'rgba(255,255,255,0.85)', letterSpacing: 3 }}>
+              •••• {card.last}
+            </Text>
+          </View>
+        )}
+        renderDetail={(card) => (
+          <View style={{ gap: 6, paddingHorizontal: 4 }}>
+            <Text variant="heading">{card.name}</Text>
+            <Text variant="caption" tone="muted">
+              Ending in {card.last}. Tap the card again to put it back.
+            </Text>
+          </View>
+        )}
+      />
+    </Col>
+  );
+}
+
+function ExpandableDemo() {
+  const theme = useTheme();
+  return (
+    <Col align="stretch" gap={12} style={{ paddingHorizontal: 16, paddingTop: 12 }}>
+      <ExpandableCard
+        title="Order #4821"
+        subtitle="Arrives Thursday"
+        leading={
+          <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: theme.colors.accentSoft, alignItems: 'center', justifyContent: 'center' }}>
+            <Glyph name="bolt" size={20} color={theme.colors.accent} />
+          </View>
+        }
+      >
+        {['Packed at the warehouse', 'Handed to the courier', 'Out for delivery Thursday morning'].map((line, i) => (
+          <View key={line} style={{ flexDirection: 'row', gap: 12, paddingHorizontal: 16, paddingBottom: 14, alignItems: 'center' }}>
+            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: i < 2 ? theme.colors.success : theme.colors.borderStrong }} />
+            <Text variant="body" tone={i < 2 ? 'default' : 'muted'}>
+              {line}
+            </Text>
+          </View>
+        ))}
+      </ExpandableCard>
+    </Col>
+  );
+}
+
+const FAQ = [
+  { key: 'a', title: 'Does it work with Expo Go?', content: 'Yes. Everything uses Reanimated, Gesture Handler and react-native-svg, which Expo Go includes.' },
+  { key: 'b', title: 'Can I turn off haptics?', content: 'Pass haptics={false} to the provider and every component goes quiet.' },
+  { key: 'c', title: 'Does it respect reduced motion?', content: 'Springs and timings follow the system setting. Loops and parallax settle to rest.' },
+];
+
+function AccordionDemo() {
+  return (
+    <Col align="stretch" gap={22} style={{ paddingHorizontal: 16, paddingTop: 12 }}>
+      <Accordion items={FAQ} defaultOpen={['a']} />
+      <Accordion items={FAQ} variant="detached" />
+    </Col>
+  );
+}
+
+function SwipeableRowDemo() {
+  const theme = useTheme();
+  const [rows, setRows] = useState(['Design review', 'Weekly sync', 'Lunch with Ines', 'Dentist']);
+  const [last, setLast] = useState('');
+  return (
+    <Col align="stretch" gap={12} style={{ paddingTop: 10 }}>
+      <View style={{ borderRadius: 18, overflow: 'hidden', marginHorizontal: 12 }}>
+        {rows.map((row) => (
+          <SwipeableRow
+            key={row}
+            collapseOnFullSwipe
+            actions={[
+              { key: 'pin', label: 'Pin', icon: 'pin', color: theme.colors.warning, onPress: () => setLast(`Pinned ${row}`) },
+              {
+                key: 'del',
+                label: 'Delete',
+                icon: 'trash',
+                color: theme.colors.danger,
+                onPress: () => {
+                  setLast(`Deleted ${row}`);
+                  setTimeout(() => setRows((r) => r.filter((x) => x !== row)), 260);
+                },
+              },
+            ]}
+          >
+            <View style={{ paddingHorizontal: 18, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: theme.colors.border }}>
+              <Text variant="label">{row}</Text>
+              <Text variant="caption" tone="muted">
+                Swipe left. Keep going to delete.
+              </Text>
+            </View>
+          </SwipeableRow>
+        ))}
+      </View>
+      <Text variant="caption" tone="muted" align="center">
+        {last || 'Nothing yet'}
+      </Text>
+    </Col>
+  );
+}
+
+function ReorderDemo() {
+  const theme = useTheme();
+  const [items, setItems] = useState(['Wake up', 'Coffee', 'Write', 'Walk', 'Ship it']);
+  return (
+    <Col align="stretch" gap={10} style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+      <ReorderList
+        items={items}
+        keyOf={(s) => s}
+        onReorder={setItems}
+        rowHeight={58}
+        renderItem={(item, active) => (
+          <View
+            style={{
+              flex: 1,
+              borderRadius: 16,
+              paddingHorizontal: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+              backgroundColor: active ? theme.colors.surfaceRaised : theme.colors.surface,
+              borderWidth: 1,
+              borderColor: active ? theme.colors.accent : theme.colors.border,
+            }}
+          >
+            <Glyph name="menu" size={18} color={theme.colors.textFaint} />
+            <Text variant="label">{item}</Text>
+          </View>
+        )}
+      />
+      <Text variant="caption" tone="muted" align="center">
+        Press and hold a row, then drag it.
+      </Text>
+    </Col>
+  );
+}
+
 export const cards: Demo[] = [
   {
     id: 'card',
@@ -191,5 +364,60 @@ export const cards: Demo[] = [
     touch: 'Light haptic crossing the line, medium when a card is sent.',
     layout: 'fill',
     Component: SwipeDeckDemo,
+  },
+  {
+    id: 'card-stack',
+    name: 'CardStack',
+    category: 'Cards',
+    summary: 'Wallet-style stack.',
+    motion:
+      'Tapping a card lifts it to the top with a brief rise toward you, while the rest drop to the bottom edge one after another and tuck into a thin pile, leaving room for its details. Tapping again fans them back out from the top.',
+    touch: 'Medium haptic on select, light on put back.',
+    layout: 'fill',
+    Component: CardStackDemo,
+  },
+  {
+    id: 'expandable-card',
+    name: 'ExpandableCard',
+    category: 'Cards',
+    summary: 'Card that opens in place.',
+    motion:
+      'The height springs open on a heavy spring and the chevron turns in step with it, not on its own timer. The details are uncovered one after another, leading the eye down the card.',
+    touch: 'Light haptic.',
+    layout: 'fill',
+    Component: ExpandableDemo,
+  },
+  {
+    id: 'accordion',
+    name: 'Accordion',
+    category: 'Cards',
+    summary: 'Collapsible sections.',
+    motion:
+      'A section springs open by its own height while the chevron turns and the content fades in. In the detached variant the open section also steps away from its neighbours, gaps opening and corners rounding out.',
+    touch: 'Selection haptic.',
+    layout: 'fill',
+    Component: AccordionDemo,
+  },
+  {
+    id: 'swipeable-row',
+    name: 'SwipeableRow',
+    category: 'Cards',
+    summary: 'Row with swipe actions.',
+    motion:
+      'Swiping left uncovers the actions, each icon growing as it is revealed. Past the full-swipe line the last action floods the row and its icon jumps forward; letting go there runs it and the row folds away.',
+    touch: 'Medium haptic at the full-swipe line.',
+    layout: 'fill',
+    Component: SwipeableRowDemo,
+  },
+  {
+    id: 'reorder-list',
+    name: 'ReorderList',
+    category: 'Cards',
+    summary: 'Drag to reorder.',
+    motion:
+      'A long press lifts the row: it grows a touch and casts a deeper shadow. Rows it passes step out of the way on springs, and on release it drops into its slot with a small bounce.',
+    touch: 'Medium haptic on lift, selection on every slot change.',
+    layout: 'fill',
+    Component: ReorderDemo,
   },
 ];
