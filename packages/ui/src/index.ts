@@ -118,3 +118,11 @@ export * from './components/cards/StackedScroll';
 export * from './components/cards/Carousel';
 export * from './components/cards/CoverflowCarousel';
 export * from './components/cards/AvatarStack';
+
+// Media and data
+export * from './components/media/PlayPauseButton';
+export * from './components/media/Waveform';
+export * from './components/media/ImageCompare';
+export * from './components/media/VoiceRecordButton';
+export * from './components/media/Stories';
+export * from './components/media/MiniPlayer';
