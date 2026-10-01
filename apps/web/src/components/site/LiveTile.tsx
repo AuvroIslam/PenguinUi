@@ -2,37 +2,33 @@
 
 import { motion, useInView } from 'motion/react';
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
-
-import { previewUrl, thumbUrl } from '@/lib/site';
+import { useRef, useState, useSyncExternalStore } from 'react';
 
 import { ArrowUpRight } from './Marks';
+import { PreviewFrame } from './PreviewFrame';
 
 type Props = {
   id: string;
   name: string;
   category: string;
   className?: string;
-  /** Where to crop the still frame before the live one loads. */
-  focus?: string;
 };
+
+const finePointer = () => window.matchMedia('(pointer: fine)').matches;
+const noSubscribe = () => () => {};
 
 /**
  * A window onto one live component. It shows a still frame first and swaps in the real,
  * touchable component when it scrolls into view on a pointer device, or on first tap on a
  * touch screen, so a page of these stays light until someone looks at it.
  */
-export function LiveTile({ id, name, category, className, focus = 'center' }: Props) {
+export function LiveTile({ id, name, category, className }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { margin: '120px' });
-  const [fine, setFine] = useState(false);
+  const fine = useSyncExternalStore(noSubscribe, finePointer, () => false);
   const [live, setLive] = useState(false);
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => setFine(window.matchMedia('(pointer: fine)').matches), []);
-  useEffect(() => {
-    if (fine && inView) setLive(true);
-  }, [fine, inView]);
+  // On a pointer device it comes to life as it scrolls into view, and stays alive after.
+  if (fine && inView && !live) setLive(true);
 
   return (
     <motion.div
@@ -44,22 +40,7 @@ export function LiveTile({ id, name, category, className, focus = 'center' }: Pr
       className={`group relative overflow-hidden rounded-[28px] border border-line bg-[#070C18] shadow-[inset_0_1px_0_rgba(214,228,255,0.06)] ${className ?? ''}`}
       onPointerDown={() => setLive(true)}
     >
-      <img
-        src={thumbUrl(id, 'card')}
-        alt=""
-        aria-hidden
-        className="absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
-        style={{ objectPosition: focus, opacity: ready ? 0 : 1 }}
-      />
-      {live ? (
-        <iframe
-          src={previewUrl(id)}
-          title={`${name}, live`}
-          onLoad={() => setTimeout(() => setReady(true), 250)}
-          className="absolute inset-0 h-full w-full border-0 transition-opacity duration-500"
-          style={{ opacity: ready ? 1 : 0 }}
-        />
-      ) : null}
+      <PreviewFrame id={id} title={`${name}, live`} live={live} />
       <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-4">
         <div className="rounded-2xl bg-night/70 px-3 py-2 backdrop-blur-md">
           <p className="display-wide text-[17px]">{name}</p>

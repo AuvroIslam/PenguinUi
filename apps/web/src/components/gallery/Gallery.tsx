@@ -4,16 +4,14 @@ import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { previewUrl, thumbUrl } from '@/lib/site';
-
 import { Pip } from '../brand/Pip';
 import { ArrowUpRight, SearchMark } from '../site/Marks';
+import { PreviewFrame } from '../site/PreviewFrame';
 
 type Item = { id: string; name: string; category: string; summary: string };
 
 function Card({ item, index }: { item: Item; index: number }) {
   const [hot, setHot] = useState(false);
-  const [ready, setReady] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const fine = useRef(false);
   useEffect(() => {
@@ -28,7 +26,6 @@ function Card({ item, index }: { item: Item; index: number }) {
   const leave = () => {
     clearTimeout(timer.current);
     setHot(false);
-    setReady(false);
   };
 
   return (
@@ -43,36 +40,10 @@ function Card({ item, index }: { item: Item; index: number }) {
       className="group relative"
     >
       {/* The card's ground matches the component's own background, so the still, cropped to
-          what the component draws, sits in it seamlessly and nothing is cut off. */}
+          what the component draws, sits in it seamlessly, and the live component takes over at
+          exactly the same size and place. */}
       <div className="relative aspect-[4/5] overflow-hidden rounded-[26px] border border-line bg-[#070C18] shadow-[inset_0_1px_0_rgba(214,228,255,0.06)] transition-[border-color,box-shadow] duration-500 group-hover:border-pip-bright/30 group-hover:shadow-[0_30px_70px_-30px_rgba(47,107,240,0.45)]">
-        <img
-          src={thumbUrl(item.id, 'card')}
-          alt=""
-          loading="lazy"
-          className="absolute inset-0 h-full w-full object-contain transition-[opacity,transform] duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.04]"
-          style={{ opacity: ready ? 0 : 1 }}
-        />
-        {hot ? (
-          <iframe
-            src={previewUrl(item.id)}
-            title={`${item.name}, live`}
-            onLoad={() => setTimeout(() => setReady(true), 200)}
-            className="absolute inset-0 h-full w-full border-0 transition-opacity duration-500"
-            style={{ opacity: ready ? 1 : 0 }}
-          />
-        ) : null}
-        <AnimatePresence>
-          {hot && !ready ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="mono pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-night/80 px-3 py-1 text-[10.5px] text-mist backdrop-blur"
-            >
-              waking up
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
+        <PreviewFrame id={item.id} title={`${item.name}, live`} live={hot} hint />
       </div>
       <Link href={`/components/${item.id}/`} className="mt-4 flex items-start justify-between gap-3 px-1">
         <div className="min-w-0">
@@ -136,7 +107,12 @@ export function Gallery({ items, categories }: { items: Item[]; categories: stri
 
       <div className="sticky top-[84px] z-30 mt-12 flex flex-col gap-3 rounded-[24px] border border-line bg-night/80 p-2 backdrop-blur-xl md:flex-row md:items-center md:justify-between">
         <LayoutGroup id="families">
-          <div className="flex gap-1 overflow-x-auto" data-lenis-prevent>
+          {/* Scrolls sideways when the families do not fit, with no bar showing: the last chip
+              fades out at the edge instead, which says there is more. */}
+          <div
+            className="flex min-w-0 gap-1 overflow-x-auto [mask-image:linear-gradient(90deg,#000_calc(100%-32px),transparent)] [scrollbar-width:none] md:flex-1 [&::-webkit-scrollbar]:hidden"
+            data-lenis-prevent
+          >
             {['All', ...categories].map((c) => (
               <button
                 key={c}
@@ -155,7 +131,7 @@ export function Gallery({ items, categories }: { items: Item[]; categories: stri
             ))}
           </div>
         </LayoutGroup>
-        <label className="flex items-center gap-2.5 rounded-full border border-line bg-deep px-4 py-2 text-mist focus-within:border-pip-bright/40 md:w-64">
+        <label className="flex items-center gap-2.5 rounded-full border border-line bg-deep px-4 py-2 text-mist focus-within:border-pip-bright/40 md:w-60 md:shrink-0">
           <SearchMark size={16} />
           <input
             value={query}
