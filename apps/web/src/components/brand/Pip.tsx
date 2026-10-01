@@ -28,6 +28,12 @@ const W = 200;
 const H = 220;
 
 /**
+ * A pivot in Pip's own drawing units. Motion measures SVG origins from each shape's bounding
+ * box by default, which would put a flipper's hinge far off the flipper and swing it away.
+ */
+const pivot = (x: number, y: number) => ({ originX: `${x}px`, originY: `${y}px`, transformBox: 'view-box' as const });
+
+/**
  * Pip, drawn for the web from the same geometry as the React Native mascot. He blinks on his
  * own, breathes, can wave, tracks the pointer with his eyes and a slight lean, and hops when
  * clicked. All of it rides motion values, so nothing here re-renders on pointer movement.
@@ -123,24 +129,29 @@ export function Pip({ size = 240, mood = 'idle', waving = false, followPointer =
           <stop offset="1" stopColor="#E4EEFF" />
         </linearGradient>
       </defs>
-      <motion.ellipse cx={100} cy={210} rx={58} ry={7} fill="#0c1730" style={{ scaleX: useTransform(hop, [-46, 0], [0.6, 1]), originX: '100px' }} />
-      <motion.g style={{ y: hop, scaleY: squash, originX: '100px', originY: '205px' }}>
+      <motion.ellipse cx={100} cy={210} rx={58} ry={7} fill="#0c1730" style={{ scaleX: useTransform(hop, [-46, 0], [0.6, 1]), ...pivot(100, 210) }} />
+      <motion.g style={{ y: hop, scaleY: squash, ...pivot(100, 205) }}>
         <ellipse cx={78} cy={203} rx={17} ry={8} fill="#FF9A3C" />
         <ellipse cx={122} cy={203} rx={17} ry={8} fill="#FF9A3C" />
         <Breathing reduced={!!reduced}>
-          <motion.g style={{ rotate: lean, originX: '100px', originY: '200px' }}>
+          <motion.g style={{ rotate: lean, ...pivot(100, 200) }}>
             <motion.path
               d="M32 116 C 14 126 8 152 14 166 C 22 160 36 146 42 130 Z"
               fill="#2551D9"
               animate={{ rotate: surprised ? 18 : 0 }}
-              style={{ originX: '38px', originY: '122px' }}
+              style={pivot(38, 122)}
             />
             <motion.path
               d="M168 116 C 186 126 192 152 186 166 C 178 160 164 146 158 130 Z"
               fill="#2551D9"
-              style={{ originX: '162px', originY: '122px' }}
-              animate={waving && !reduced ? { rotate: [0, -30, -8, -30, -8, -30, 0] } : { rotate: surprised ? -18 : 0 }}
-              transition={waving ? { duration: 1.4, repeat: Infinity, repeatDelay: 1.2, ease: 'easeInOut' } : { type: 'spring', stiffness: 200, damping: 12 }}
+              style={pivot(162, 122)}
+              // A proper hello: the flipper swings up beside his head, waggles three times, and drops.
+              animate={waving && !reduced ? { rotate: [0, -112, -78, -112, -78, -112, 0] } : { rotate: surprised ? -18 : 0 }}
+              transition={
+                waving
+                  ? { duration: 1.9, times: [0, 0.2, 0.36, 0.52, 0.68, 0.84, 1], repeat: Infinity, repeatDelay: 2.4, ease: 'easeInOut' }
+                  : { type: 'spring', stiffness: 200, damping: 12 }
+              }
             />
             <path d="M100 26 C 150 26 176 72 176 128 C 176 180 144 204 100 204 C 56 204 24 180 24 128 C 24 72 50 26 100 26 Z" fill={`url(#${id}b)`} />
             <path d="M96 30 C 92 14 106 6 113 15 C 106 13 102 19 106 28 Z" fill="#2551D9" />
@@ -154,7 +165,7 @@ export function Pip({ size = 240, mood = 'idle', waving = false, followPointer =
               d="M89 117 C 95 112 105 112 111 117 C 108 126 104 130 100 130 C 96 130 92 126 89 117 Z"
               fill="#FF9A3C"
               animate={{ scaleY: surprised ? 1.35 : 1 }}
-              style={{ originX: '100px', originY: '116px' }}
+              style={pivot(100, 116)}
             />
             <path d="M91 119 C 96 121 104 121 109 119" stroke="#E07A22" strokeWidth={1.6} fill="none" strokeLinecap="round" />
             {happy ? (
@@ -191,7 +202,7 @@ function Breathing({ children, reduced }: { children: React.ReactNode; reduced: 
     <motion.g
       animate={reduced ? undefined : { y: [0, -2.4, 0], scaleY: [1, 1.018, 1] }}
       transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
-      style={{ originX: '100px', originY: '205px' }}
+      style={pivot(100, 205)}
     >
       {children}
     </motion.g>

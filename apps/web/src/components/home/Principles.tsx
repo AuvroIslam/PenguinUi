@@ -104,12 +104,12 @@ function Haptics() {
           fill="none"
           stroke="#3DDAB4"
           strokeWidth={2}
-          style={{ originX: '260px', originY: '150px' }}
+          style={{ originX: '260px', originY: '150px', transformBox: 'view-box' }}
           animate={{ scale: [1, 1.5], opacity: [0.7, 0] }}
           transition={{ duration: 1.8, repeat: Infinity, delay: i * 0.6, ease: 'easeOut' }}
         />
       ))}
-      <motion.circle cx={260} cy={190} r={22} fill="#2F6BF0" animate={{ scale: [1, 0.86, 1] }} transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 1.2 }} style={{ originX: '260px', originY: '190px' }} />
+      <motion.circle cx={260} cy={190} r={22} fill="#2F6BF0" animate={{ scale: [1, 0.86, 1] }} transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 1.2 }} style={{ originX: '260px', originY: '190px', transformBox: 'view-box' }} />
     </svg>
   );
 }

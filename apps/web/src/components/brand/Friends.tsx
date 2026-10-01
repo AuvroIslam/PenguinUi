@@ -14,7 +14,8 @@ function Blink({ children, cx, cy, delay = 0 }: { children: React.ReactNode; cx:
   const reduced = useReducedMotion();
   return (
     <motion.g
-      style={{ originX: `${cx}px`, originY: `${cy}px` }}
+      // view-box: measure the pivot in drawing units, not from the eye's own bounding box.
+      style={{ originX: `${cx}px`, originY: `${cy}px`, transformBox: 'view-box' }}
       animate={reduced ? undefined : { scaleY: [1, 1, 0.08, 1, 1] }}
       transition={{ duration: 4.2 + delay, times: [0, 0.9, 0.93, 0.97, 1], repeat: Infinity, delay }}
     >
