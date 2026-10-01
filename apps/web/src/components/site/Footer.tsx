@@ -39,7 +39,9 @@ const COLUMNS = [
  */
 export function Footer() {
   const ref = useRef<HTMLDivElement>(null);
-  const seen = useInView(ref, { once: true, margin: '-15% 0px' });
+  // Half of the wordmark on screen is enough: at the very bottom of a short page it can never
+  // scroll further in than that.
+  const seen = useInView(ref, { once: true, amount: 0.5 });
 
   return (
     <footer className="relative mt-32 overflow-hidden border-t border-line bg-abyss">
@@ -74,9 +76,9 @@ export function Footer() {
 
       <div ref={ref} className="relative mx-auto max-w-[1400px] px-4">
         <motion.div
-          className="absolute bottom-[64%] left-[61%] z-30"
-          initial={{ y: 140, rotate: 8 }}
-          animate={seen ? { y: 0, rotate: 0 } : undefined}
+          className="absolute bottom-[64%] left-[58%] z-30 origin-bottom scale-[0.72] sm:left-[61%] sm:scale-100"
+          initial={{ y: 140, rotate: 8, opacity: 0 }}
+          animate={seen ? { y: 0, rotate: 0, opacity: 1 } : undefined}
           transition={{ type: 'spring', stiffness: 160, damping: 13, delay: 0.25 }}
         >
           <Pip size={110} waving={seen} playful />

@@ -153,7 +153,7 @@ export function Hero() {
 
           {/* Pip belly-slides in from the left and pops upright beside the phone. */}
           <motion.div
-            className="absolute -left-6 bottom-40 z-10 sm:-left-24"
+            className="absolute -left-3 bottom-36 z-10 origin-bottom-left scale-[0.68] sm:-left-24 sm:bottom-40 sm:scale-100"
             initial={reduced ? false : { x: -420, rotate: -84, y: 40 }}
             animate={{ x: 0, rotate: 0, y: 0 }}
             transition={{

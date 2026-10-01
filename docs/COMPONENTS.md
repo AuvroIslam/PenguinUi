@@ -216,7 +216,7 @@ Motion: the sun's rays retract as a moon bite slides across the core, with a qua
 Touch: light haptic.
 
 **45. Knob.** Rotary dial.
-Motion: a ring of ticks lights up to the current value, and the value rolls in the centre.
+Motion: a ring of ticks lights up to the current value, and the value rolls in the centre. Turned by circling the finger around it like a real dial, clockwise for more.
 Touch: selection tick per step.
 
 **46. PlanPicker.** Pricing plan selection with a billing toggle.
@@ -319,7 +319,7 @@ Motion: up to 10 degrees on each axis with perspective, and a glare that moves o
 Motion: flips on Y with a `gentle` spring and a slight dip in scale at the midpoint. Can be dragged through the flip.
 
 **74. SwipeDeck.** Swipeable card stack.
-Motion: the top card follows the finger with rotation and shows a stamp. The card beneath scales up as it goes. Release flings it off or springs it back.
+Motion: the top card lifts when picked up, stays under the finger and leans about the grabbed point. A per-frame swing adds lean with speed and rocks back when the finger slows, so the card has weight. A stamp presses in, the card beneath scales up, and a new card rises into the back. Release carries the throw's velocity off screen or glides it back on a spring seeded with the release speed.
 Touch: light haptic crossing the threshold.
 
 **75. CardStack.** Wallet-style stack.

@@ -123,6 +123,16 @@ html.lenis body {
   line-height: 1.75;
   tab-size: 2;
 }
+/* On phones, wrap long lines instead of hiding them off the right edge. Copying still takes the
+   original lines, since wrapping is only visual. */
+@media (max-width: 640px) {
+  .code pre {
+    padding: 16px;
+    font-size: 11.5px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}
 .code pre::-webkit-scrollbar {
   height: 8px;
 }

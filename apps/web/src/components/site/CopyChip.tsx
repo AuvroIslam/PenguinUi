@@ -24,7 +24,8 @@ export function CopyChip({ text, label, className }: { text: string; label?: str
       className={`group flex max-w-full items-center gap-3 rounded-2xl border border-line-strong bg-deep/80 py-2.5 pl-4 pr-2.5 text-left backdrop-blur transition-colors hover:border-pip-bright/40 ${className ?? ''}`}
     >
       <span className="mono shrink-0 text-xs text-aurora">$</span>
-      <span className="mono min-w-0 truncate text-[12.5px] text-frost">{label ?? text}</span>
+      {/* Wraps on phones so the whole command is readable; one truncated line from sm up. */}
+      <span className="mono min-w-0 text-[12.5px] leading-relaxed text-frost [overflow-wrap:anywhere] sm:truncate">{label ?? text}</span>
       <span className="relative grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-shelf text-mist transition-colors group-hover:text-snow">
         <AnimatePresence mode="popLayout" initial={false}>
           {done ? (

@@ -16,8 +16,10 @@ const STEPS = [
 /** How people use it: three steps on the left, real code on the right. */
 export function Install({ codeHtml }: { codeHtml: string }) {
   return (
-    <section className="mx-auto grid max-w-6xl items-center gap-14 px-6 py-32 lg:grid-cols-[0.9fr_1.1fr]">
-      <div>
+    // grid-cols-1 and min-w-0 keep the code's long lines scrolling inside the card on phones,
+    // instead of stretching the column and the whole page sideways.
+    <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-14 px-6 py-32 lg:grid-cols-[0.9fr_1.1fr]">
+      <div className="min-w-0">
         <Reveal>
           <h2 className="display text-[clamp(3rem,6.5vw,5.6rem)]">
             Copy it in.
@@ -52,7 +54,7 @@ export function Install({ codeHtml }: { codeHtml: string }) {
           </div>
         </Reveal>
       </div>
-      <Reveal delay={0.1}>
+      <Reveal delay={0.1} className="min-w-0">
         <div className="space-y-4">
           <CopyChip text={PEERS} label="npx expo install react-native-reanimated ..." />
           <CodeCard title="App.tsx" html={codeHtml} />

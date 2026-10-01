@@ -42,13 +42,15 @@ function Card({ item, index }: { item: Item; index: number }) {
       onMouseLeave={leave}
       className="group relative"
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-[26px] border border-line bg-night shadow-[inset_0_1px_0_rgba(214,228,255,0.06)] transition-[border-color,box-shadow] duration-500 group-hover:border-pip-bright/30 group-hover:shadow-[0_30px_70px_-30px_rgba(47,107,240,0.45)]">
+      {/* The card's ground matches the component's own background, so the still, cropped to
+          what the component draws, sits in it seamlessly and nothing is cut off. */}
+      <div className="relative aspect-[4/5] overflow-hidden rounded-[26px] border border-line bg-[#070C18] shadow-[inset_0_1px_0_rgba(214,228,255,0.06)] transition-[border-color,box-shadow] duration-500 group-hover:border-pip-bright/30 group-hover:shadow-[0_30px_70px_-30px_rgba(47,107,240,0.45)]">
         <img
-          src={thumbUrl(item.id)}
+          src={thumbUrl(item.id, 'card')}
           alt=""
           loading="lazy"
-          className="absolute inset-0 h-full w-full scale-[1.22] object-cover transition-[opacity,transform] duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.28]"
-          style={{ objectPosition: '50% 46%', opacity: ready ? 0 : 1 }}
+          className="absolute inset-0 h-full w-full object-contain transition-[opacity,transform] duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.04]"
+          style={{ opacity: ready ? 0 : 1 }}
         />
         {hot ? (
           <iframe

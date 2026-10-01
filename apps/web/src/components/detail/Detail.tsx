@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import type { Entry } from '@/lib/catalog';
 
@@ -27,11 +27,37 @@ type Props = {
 const spring = { type: 'spring' as const, stiffness: 110, damping: 20 };
 
 /**
+ * A component name that may wrap where its words join (Coverflow|Carousel), so a long name in a
+ * narrow column moves to a second line instead of running off the screen.
+ */
+function breakable(name: string) {
+  return name.split(/(?=[A-Z][a-z])/).map((part, i) => (
+    <span key={i}>
+      {i > 0 ? <wbr /> : null}
+      {part}
+    </span>
+  ));
+}
+
+/** The phone's width: 330 on a desktop, smaller on a phone so the whole frame fits on screen. */
+function usePhoneWidth() {
+  const [width, setWidth] = useState(330);
+  useEffect(() => {
+    const fit = () => setWidth(Math.round(Math.max(232, Math.min(330, window.innerWidth - 56, (window.innerHeight - 190) / 2.14))));
+    fit();
+    window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
+  }, []);
+  return width;
+}
+
+/**
  * One component. The phone on the left runs it for real and can be replayed or switched to
  * light mode; the right side says what it does, how it moves, and hands over every file it
  * needs, in order, ready to copy.
  */
 export function Detail({ entry: e, usageHtml, files, packages, prev, next }: Props) {
+  const phoneWidth = usePhoneWidth();
   const [replay, setReplay] = useState(0);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [tab, setTab] = useState<'usage' | 'source'>('usage');
@@ -42,16 +68,16 @@ export function Detail({ entry: e, usageHtml, files, packages, prev, next }: Pro
   const installLine = packages.length ? `npx expo install ${packages.join(' ')}` : '';
 
   return (
-    <main className="mx-auto max-w-6xl px-6 pb-16 pt-32">
+    <main className="mx-auto max-w-6xl px-6 pb-16 pt-28 lg:pt-32">
       <Link href="/components/" className="inline-flex items-center gap-2 text-[14px] text-mist transition-colors hover:text-snow">
         <ArrowLeft size={15} />
         All components
       </Link>
 
-      <div className="mt-8 grid gap-14 lg:grid-cols-[360px_1fr]">
+      <div className="mt-6 grid gap-14 lg:mt-8 lg:grid-cols-[360px_1fr]">
         <div className="lg:sticky lg:top-28 lg:self-start">
           <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="flex justify-center">
-            <LivePhone id={e.id} width={330} theme={theme} replay={replay} eager />
+            <LivePhone id={e.id} width={phoneWidth} theme={theme} replay={replay} eager />
           </motion.div>
           <div className="mt-5 flex items-center justify-center gap-2">
             <button
@@ -180,13 +206,13 @@ export function Detail({ entry: e, usageHtml, files, packages, prev, next }: Pro
               <span className="flex items-center gap-2 text-[12px] text-mist">
                 <ArrowLeft size={14} /> Previous
               </span>
-              <span className="display-wide mt-2 block text-[20px]">{prev.name}</span>
+              <span className="display-wide mt-2 block text-[17px] sm:text-[20px]">{breakable(prev.name)}</span>
             </Link>
             <Link href={`/components/${next.id}/`} className="group rounded-[20px] border border-line p-5 text-right transition-colors hover:border-line-strong">
               <span className="flex items-center justify-end gap-2 text-[12px] text-mist">
                 Next <ArrowRight size={14} />
               </span>
-              <span className="display-wide mt-2 block text-[20px]">{next.name}</span>
+              <span className="display-wide mt-2 block text-[17px] sm:text-[20px]">{breakable(next.name)}</span>
             </Link>
           </div>
         </div>

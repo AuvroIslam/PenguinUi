@@ -12,8 +12,9 @@ export function previewUrl(id: string, theme: 'dark' | 'light' = 'dark') {
   return `${BASE}/preview/?c=${encodeURIComponent(id)}&theme=${theme}`;
 }
 
-export function thumbUrl(id: string) {
-  return `${BASE}/thumbs/${id}.webp`;
+/** A still of the component: the whole phone screen, or cropped to what it draws (`card`). */
+export function thumbUrl(id: string, crop: 'screen' | 'card' = 'screen') {
+  return crop === 'card' ? `${BASE}/thumbs/card/${id}.webp` : `${BASE}/thumbs/${id}.webp`;
 }
 
 export const GITHUB = 'https://github.com/AuvroIslam/PenguinUi';

@@ -2,6 +2,7 @@
 
 import { motion } from 'motion/react';
 import Link from 'next/link';
+import { useEffect, useRef } from 'react';
 
 import { Bubbles, Frost, Mochi, Nori } from '../brand/Friends';
 import { Pip } from '../brand/Pip';
@@ -21,6 +22,13 @@ const CAST = [
  * middle watches the pointer. The point of the section: a hundred demos, one world.
  */
 export function Crew() {
+  // On a narrow screen the line-up scrolls sideways; start it centred on Pip.
+  const row = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = row.current;
+    if (el && el.scrollWidth > el.clientWidth) el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
+  }, []);
+
   return (
     <section id="crew" className="relative overflow-hidden py-32">
       <div className="mx-auto max-w-6xl px-6">
@@ -51,7 +59,10 @@ export function Crew() {
           <path d="M0 40 C 200 10, 420 30, 640 22 C 880 12, 1120 34, 1340 18 C 1460 10, 1540 20, 1600 28 L 1600 120 L 0 120 Z" fill="url(#floe)" />
           <path d="M0 40 C 200 10, 420 30, 640 22 C 880 12, 1120 34, 1340 18 C 1460 10, 1540 20, 1600 28" stroke="rgba(214,228,255,0.25)" strokeWidth={2} fill="none" />
         </svg>
-        <div className="relative mx-auto flex max-w-6xl items-end justify-center gap-2 overflow-x-auto px-6 pb-14 sm:gap-6">
+        {/* The inner row centres itself when it fits and scrolls from its first friend when it
+            does not, so nobody is pushed off the left edge out of reach. */}
+        <div ref={row} className="relative overflow-x-auto pb-14 [scrollbar-width:none]">
+          <div className="mx-auto flex w-max items-end gap-2 px-6 [zoom:0.62] sm:gap-6 sm:[zoom:0.85] lg:[zoom:1]">
           {CAST.map((c, i) => (
             <motion.div
               key={c.name}
@@ -68,6 +79,7 @@ export function Crew() {
               {c.node}
             </motion.div>
           ))}
+          </div>
         </div>
       </div>
       <div className="mx-auto mt-10 flex max-w-6xl justify-center px-6">

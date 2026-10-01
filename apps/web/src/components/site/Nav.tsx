@@ -1,9 +1,9 @@
 'use client';
 
-import { motion, useMotionValueEvent, useScroll } from 'motion/react';
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'motion/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { GITHUB } from '@/lib/site';
 
@@ -18,27 +18,42 @@ const LINKS = [
 
 /**
  * A floating pill that tightens and gains a frosted backing once the page scrolls, with one
- * highlight that glides between links on hover instead of each link lighting on its own.
+ * highlight that glides between links on hover instead of each link lighting on its own. On
+ * phones the links fold into a menu: two strokes turn into a cross and a panel drops in.
  */
 export function Nav() {
   const path = usePathname();
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
   const [hover, setHover] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
   useMotionValueEvent(scrollY, 'change', (y) => setScrolled(y > 24));
+  // Close the menu whenever the page changes, back and forward included.
+  const [menuPath, setMenuPath] = useState(path);
+  if (menuPath !== path) {
+    setMenuPath(path);
+    setOpen(false);
+  }
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+  const solid = scrolled || open;
 
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4">
+    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex flex-col items-center px-4 pt-4">
       <motion.nav
         initial={{ y: -40, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 220, damping: 26, delay: 0.15 }}
         className="pointer-events-auto flex w-full max-w-5xl items-center justify-between rounded-full border px-2 py-2 transition-[background-color,border-color,box-shadow] duration-500"
         style={{
-          backgroundColor: scrolled ? 'rgba(10,18,34,0.72)' : 'rgba(10,18,34,0)',
-          borderColor: scrolled ? 'rgba(214,228,255,0.1)' : 'rgba(214,228,255,0)',
-          backdropFilter: scrolled ? 'blur(18px) saturate(1.4)' : 'none',
-          boxShadow: scrolled ? '0 12px 40px -12px rgba(0,0,0,0.6)' : 'none',
+          backgroundColor: solid ? 'rgba(10,18,34,0.72)' : 'rgba(10,18,34,0)',
+          borderColor: solid ? 'rgba(214,228,255,0.1)' : 'rgba(214,228,255,0)',
+          backdropFilter: solid ? 'blur(18px) saturate(1.4)' : 'none',
+          boxShadow: solid ? '0 12px 40px -12px rgba(0,0,0,0.6)' : 'none',
         }}
       >
         <Link href="/" className="flex items-center gap-2.5 rounded-full py-1 pl-2 pr-3">
@@ -82,8 +97,57 @@ export function Nav() {
               <ArrowUpRight size={16} strokeWidth={2.2} />
             </span>
           </Link>
+          <button
+            type="button"
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            aria-expanded={open}
+            onClick={() => setOpen((o) => !o)}
+            className="grid h-9 w-9 place-items-center rounded-full text-snow transition-colors hover:bg-white/[0.06] md:hidden"
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
+              <motion.line x1="3" x2="15" y1="6" y2="6" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" animate={open ? { y1: 9, y2: 9, rotate: 45 } : { y1: 6, y2: 6, rotate: 0 }} style={{ originX: '9px', originY: '9px', transformBox: 'view-box' }} transition={{ type: 'spring', stiffness: 420, damping: 30 }} />
+              <motion.line x1="3" x2="15" y1="12" y2="12" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" animate={open ? { y1: 9, y2: 9, rotate: -45 } : { y1: 12, y2: 12, rotate: 0 }} style={{ originX: '9px', originY: '9px', transformBox: 'view-box' }} transition={{ type: 'spring', stiffness: 420, damping: 30 }} />
+            </svg>
+          </button>
         </div>
       </motion.nav>
+      <AnimatePresence>
+        {open ? (
+          <motion.div
+            key="menu"
+            initial={{ opacity: 0, y: -12, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+            className="pointer-events-auto mt-2 w-full max-w-5xl origin-top rounded-[28px] border border-line bg-[rgba(10,18,34,0.92)] p-3 shadow-[0_24px_60px_-16px_rgba(0,0,0,0.7)] backdrop-blur-xl md:hidden"
+          >
+            {[...LINKS, { href: GITHUB, label: 'GitHub' }].map((l, i) => {
+              const external = l.href.startsWith('http');
+              const active = !external && path?.startsWith(l.href.replace(/\/$/, ''));
+              const inner = (
+                <motion.span
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 26, delay: 0.03 + i * 0.04 }}
+                  className={`flex items-center justify-between rounded-2xl px-4 py-3.5 transition-colors ${active ? 'bg-white/[0.06] text-snow' : 'text-frost active:bg-white/[0.06]'}`}
+                >
+                  <span className="display-wide text-[22px]">{l.label}</span>
+                  {external ? <RepoMark size={18} /> : <ArrowUpRight size={18} strokeWidth={2} />}
+                </motion.span>
+              );
+              return external ? (
+                <a key={l.href} href={l.href} target="_blank" rel="noreferrer" className="block">
+                  {inner}
+                </a>
+              ) : (
+                <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="block">
+                  {inner}
+                </Link>
+              );
+            })}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </header>
   );
 }

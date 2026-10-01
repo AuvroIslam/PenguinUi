@@ -41,14 +41,14 @@ export function LiveTile({ id, name, category, className, focus = 'center' }: Pr
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: '-60px' }}
       transition={{ type: 'spring', stiffness: 90, damping: 18 }}
-      className={`group relative overflow-hidden rounded-[28px] border border-line bg-night shadow-[inset_0_1px_0_rgba(214,228,255,0.06)] ${className ?? ''}`}
+      className={`group relative overflow-hidden rounded-[28px] border border-line bg-[#070C18] shadow-[inset_0_1px_0_rgba(214,228,255,0.06)] ${className ?? ''}`}
       onPointerDown={() => setLive(true)}
     >
       <img
-        src={thumbUrl(id)}
+        src={thumbUrl(id, 'card')}
         alt=""
         aria-hidden
-        className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500"
+        className="absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
         style={{ objectPosition: focus, opacity: ready ? 0 : 1 }}
       />
       {live ? (

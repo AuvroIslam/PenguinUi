@@ -83,7 +83,7 @@ export function CrewPage() {
           animate={{ y: 0, opacity: 1, rotate: 0 }}
           transition={{ type: 'spring', stiffness: 120, damping: 11, delay: 0.2 }}
         >
-          <Pip size={320} mood={MOODS[mood]} waving followPointer playful />
+          <Pip size={320} mood={MOODS[mood]} waving followPointer playful className="h-auto w-[min(320px,76vw)]" />
         </motion.div>
       </section>
 
@@ -94,13 +94,14 @@ export function CrewPage() {
         <div className="mt-10 grid gap-4 md:grid-cols-2">
           {FRIENDS.map((f, i) => (
             <Reveal key={f.name} delay={0.05 * i}>
-              <div className={`group relative flex h-[360px] flex-col justify-between overflow-hidden rounded-[30px] border border-line bg-gradient-to-b p-7 ${f.tint}`}>
+              <div className={`group relative flex h-[440px] flex-col justify-between overflow-hidden rounded-[30px] border border-line bg-gradient-to-b p-7 sm:h-[360px] ${f.tint}`}>
                 <div>
                   <p className="mono text-[11px] uppercase tracking-[0.16em] text-aurora">{f.species}</p>
                   <p className="display mt-2 text-[44px]">{f.name}</p>
                   <p className="mt-2 max-w-[19rem] text-[15px] leading-relaxed text-frost">{f.line}</p>
                 </div>
-                <div className="absolute -bottom-2 right-4 transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:-translate-y-2">
+                {/* Smaller on phones so the art sits under the words rather than over them. */}
+                <div className="absolute -bottom-2 right-4 origin-bottom-right scale-[0.74] transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:-translate-y-2 sm:scale-100">
                   {f.node}
                 </div>
               </div>
