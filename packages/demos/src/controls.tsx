@@ -160,7 +160,7 @@ export const controls: Demo[] = [
     category: 'Controls',
     summary: 'Rotary dial.',
     motion:
-      'A ring of ticks fills up to the current value and the tick at the value stands taller than its neighbours. The number rolls in the centre. Drag up to turn it up and down to turn it down.',
+      'A ring of ticks fills up to the current value and the tick at the value stands taller than its neighbours. The number rolls in the centre. Turn it like a real dial, from anywhere on it: clockwise for more, anticlockwise for less.',
     touch: 'Selection tick per step.',
     Component: KnobDemo,
   },

@@ -35,8 +35,9 @@ export type KnobProps = {
 
 const TICKS = 41;
 const SWEEP = 270;
-/** Points of vertical drag for the whole range. */
+/** Points of drag for the whole range, for the rare drag that starts right at the centre. */
 const TRAVEL = 220;
+const SWEEP_RAD = (SWEEP * Math.PI) / 180;
 
 type TickProps = {
   index: number;
@@ -70,8 +71,9 @@ const Tick = memo(function Tick({ index, radius, length, level, on, off }: TickP
 
 /**
  * A rotary dial. A ring of ticks fills up to the current value, the tick at the value stands
- * taller than its neighbours, and the number rolls in the middle. Drag up to turn it up and
- * down to turn it down; the value is shown in steps and each step ticks.
+ * taller than its neighbours, and the number rolls in the middle. It turns like a real dial:
+ * wherever it is grabbed, the value follows the angle the finger sweeps around the centre,
+ * clockwise for more. The value moves in steps and each step ticks.
  */
 export function Knob({
   value: controlled,
@@ -91,7 +93,8 @@ export function Knob({
   const [value, setValue] = useControllable(controlled, defaultValue, onChange);
 
   const level = useSharedValue((clamp(value, min, max) - min) / (max - min || 1));
-  const start = useSharedValue(0);
+  const lastX = useSharedValue(0);
+  const lastY = useSharedValue(0);
   const active = useSharedValue(0);
   const lastStep = useSharedValue(Math.round((value - min) / step));
   const dragging = useSharedValue(false);
@@ -112,16 +115,32 @@ export function Knob({
     [min, step, setValue],
   );
 
+  const center = size / 2;
+
   const pan = Gesture.Pan()
     .enabled(!disabled)
     .minDistance(0)
-    .onBegin(() => {
+    .onBegin((e) => {
       dragging.value = true;
-      start.value = level.value;
+      lastX.value = e.x;
+      lastY.value = e.y;
       active.value = withSpring(1, springs.press);
     })
     .onUpdate((e) => {
-      const next = clamp(start.value - e.translationY / TRAVEL, 0, 1);
+      const ax = lastX.value - center;
+      const ay = lastY.value - center;
+      const bx = e.x - center;
+      const by = e.y - center;
+      const farEnough = Math.min(Math.hypot(ax, ay), Math.hypot(bx, by)) > size * 0.12;
+      // Turn by the angle swept since the last move, clockwise positive (y points down). Right
+      // at the centre the angle is unreliable, so there it slides instead: right or up for more.
+      const delta =
+        farEnough
+          ? Math.atan2(ax * by - ay * bx, ax * bx + ay * by) / SWEEP_RAD
+          : (e.x - lastX.value - (e.y - lastY.value)) / TRAVEL;
+      lastX.value = e.x;
+      lastY.value = e.y;
+      const next = clamp(level.value + delta, 0, 1);
       level.value = next;
       const index = Math.round(next * steps);
       if (index !== lastStep.value) {
