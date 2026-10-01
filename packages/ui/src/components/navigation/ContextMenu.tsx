@@ -138,7 +138,8 @@ export function ContextMenu({ children, items, onSelect, style }: ContextMenuPro
     opacity: Math.min(1, show.value * 1.6),
     top: menuTop.value,
     left: menuLeft.value,
-    transformOrigin: `${originX.value}px ${originY.value}px`,
+    // Array form: the string parser reads neither decimals nor negative values.
+    transformOrigin: [Math.round(originX.value), Math.round(originY.value), 0],
     transform: [{ scale: interpolate(show.value, [0, 1], [0.6, 1]) }],
   }));
 

@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { categories, demos, type Category, type Demo } from '@/demos';
+import { categories, demos, type Category, type Demo } from '@penguin-ui/demos';
 import { useScheme } from '@/scheme';
 
 export default function Home() {

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { findDemo } from '@/demos';
+import { findDemo } from '@penguin-ui/demos';
 
 export default function DemoScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

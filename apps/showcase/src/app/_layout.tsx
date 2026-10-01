@@ -1,11 +1,13 @@
 import {
-  Geist_400Regular,
-  Geist_500Medium,
-  Geist_600SemiBold,
-  Geist_700Bold,
+  BricolageGrotesque_400Regular,
+  BricolageGrotesque_500Medium,
+  BricolageGrotesque_600SemiBold,
+  BricolageGrotesque_700Bold,
+  BricolageGrotesque_800ExtraBold,
   useFonts,
-} from '@expo-google-fonts/geist';
-import { GeistMono_400Regular } from '@expo-google-fonts/geist-mono';
+} from '@expo-google-fonts/bricolage-grotesque';
+import { MartianMono_400Regular, MartianMono_500Medium } from '@expo-google-fonts/martian-mono';
+import { fonts } from '@penguin-ui/brand';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { PenguinProvider, Toaster, useTheme, type ThemeOverrides } from 'penguin-ui';
@@ -17,11 +19,11 @@ import { SchemeContext, type Scheme } from '@/scheme';
 
 const overrides: ThemeOverrides = {
   fonts: {
-    regular: 'Geist_400Regular',
-    medium: 'Geist_500Medium',
-    semibold: 'Geist_600SemiBold',
-    bold: 'Geist_700Bold',
-    mono: 'GeistMono_400Regular',
+    regular: fonts.regular,
+    medium: fonts.medium,
+    semibold: fonts.semibold,
+    bold: fonts.bold,
+    mono: fonts.mono,
   },
 };
 
@@ -56,11 +58,13 @@ export default function RootLayout() {
   const value = useMemo(() => ({ scheme, toggle }), [scheme, toggle]);
 
   const [loaded] = useFonts({
-    Geist_400Regular,
-    Geist_500Medium,
-    Geist_600SemiBold,
-    Geist_700Bold,
-    GeistMono_400Regular,
+    BricolageGrotesque_400Regular,
+    BricolageGrotesque_500Medium,
+    BricolageGrotesque_600SemiBold,
+    BricolageGrotesque_700Bold,
+    BricolageGrotesque_800ExtraBold,
+    MartianMono_400Regular,
+    MartianMono_500Medium,
   });
 
   if (!loaded) return null;

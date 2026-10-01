@@ -1,0 +1,24 @@
+{
+  "name": "@penguin-ui/demos",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The live examples for every PenguinUi component, shared by the phone showcase and the website.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "react-native": "src/index.ts",
+  "sideEffects": false,
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@penguin-ui/brand": "*",
+    "penguin-ui": "*"
+  },
+  "peerDependencies": {
+    "react": ">=19",
+    "react-native": ">=0.81",
+    "react-native-reanimated": ">=4",
+    "react-native-safe-area-context": "*",
+    "react-native-svg": ">=15"
+  }
+}

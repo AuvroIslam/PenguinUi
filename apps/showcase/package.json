@@ -11,8 +11,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@expo-google-fonts/geist": "^0.4.2",
-    "@expo-google-fonts/geist-mono": "^0.4.3",
+    "@expo-google-fonts/bricolage-grotesque": "^0.4.1",
+    "@expo-google-fonts/martian-mono": "^0.4.2",
+    "@penguin-ui/brand": "*",
+    "@penguin-ui/demos": "*",
     "expo": "~57.0.26",
     "expo-constants": "~57.0.20",
     "expo-font": "~57.0.4",

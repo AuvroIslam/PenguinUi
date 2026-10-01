@@ -124,7 +124,8 @@ export function Tooltip({ content, children, placement = 'top', trigger = 'longP
                   backgroundColor: c.primary,
                   borderRadius: theme.radii.sm,
                   // Grows from the tip of the arrow.
-                  transformOrigin: `${arrowX}px ${below ? -ARROW : (size?.height ?? 0) + ARROW}px`,
+                  // Array form: the string parser reads neither decimals nor negative values.
+                  transformOrigin: [Math.round(arrowX), below ? -ARROW : Math.round((size?.height ?? 0) + ARROW), 0],
                   boxShadow: theme.shadows.md,
                 },
                 size ? null : styles.hidden,
