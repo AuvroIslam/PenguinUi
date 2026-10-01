@@ -99,7 +99,7 @@ function Beam({ width, height, color, running }: { width: number; height: number
   const w = Math.max(0, width - inset * 2);
   const h = Math.max(0, height - inset * 2);
   const r = Math.min(RADIUS - inset, h / 2);
-  const perimeter = 2 * (w + h - 2 * r) + 2 * Math.PI * r;
+  const perimeter = 2 * (w + h - 4 * r) + 2 * Math.PI * r;
 
   useEffect(() => {
     visible.value = withTiming(running ? 1 : 0, { duration: 260 });
@@ -112,10 +112,12 @@ function Beam({ width, height, color, running }: { width: number; height: number
   if (!width || !height) return null;
 
   const rect = { x: inset, y: inset, width: w, height: h, r };
+  // All three end at the same head point (a shorter dash is pushed forward by what it lacks),
+  // so the light is faint behind and brightest at the front.
   const dashes = [
     { length: perimeter * 0.22, lag: 0, opacity: 0.25 },
-    { length: perimeter * 0.12, lag: perimeter * 0.02, opacity: 0.5 },
-    { length: perimeter * 0.05, lag: perimeter * 0.04, opacity: 1 },
+    { length: perimeter * 0.12, lag: -perimeter * 0.1, opacity: 0.5 },
+    { length: perimeter * 0.05, lag: -perimeter * 0.17, opacity: 1 },
   ];
 
   return (

@@ -129,3 +129,11 @@ export * from './components/media/MiniPlayer';
 export * from './components/media/BarChart';
 export * from './components/media/LineChart';
 export * from './components/media/ActivityRings';
+
+// Effects
+export * from './components/effects/BorderBeam';
+export * from './components/effects/PulseRings';
+export * from './components/effects/AuroraBackground';
+export * from './components/effects/DotGrid';
+export * from './components/effects/Confetti';
+export * from './components/effects/SuccessCheck';
