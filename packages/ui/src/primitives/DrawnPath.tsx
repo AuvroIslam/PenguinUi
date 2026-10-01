@@ -3,6 +3,7 @@ import Animated, {
   useDerivedValue,
   type SharedValue,
 } from 'react-native-reanimated';
+import { View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
@@ -55,9 +56,13 @@ const CHECK_LENGTH = 19.6;
 /** A check that draws itself from its short stroke into its long one. */
 export function DrawnCheck({ progress, size = 20, color, strokeWidth = 2 }: MarkProps) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <DrawnStroke d={CHECK} length={CHECK_LENGTH} progress={progress} color={color} strokeWidth={strokeWidth} />
-    </Svg>
+    // Wrapped in a View so the mark stacks in source order on the web too, where a bare <svg>
+    // would paint underneath any absolutely positioned sibling.
+    <View style={{ width: size, height: size }}>
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <DrawnStroke d={CHECK} length={CHECK_LENGTH} progress={progress} color={color} strokeWidth={strokeWidth} />
+      </Svg>
+    </View>
   );
 }
 
@@ -70,9 +75,11 @@ export function DrawnCross({ progress, size = 20, color, strokeWidth = 2 }: Mark
   const first = useDerivedValue(() => progress.value * 2);
   const second = useDerivedValue(() => progress.value * 2 - 1);
   return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <View style={{ width: size, height: size }}>
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <DrawnStroke d={SLASH} length={SLASH_LENGTH} progress={first} color={color} strokeWidth={strokeWidth} />
       <DrawnStroke d={BACKSLASH} length={SLASH_LENGTH} progress={second} color={color} strokeWidth={strokeWidth} />
-    </Svg>
+      </Svg>
+    </View>
   );
 }
