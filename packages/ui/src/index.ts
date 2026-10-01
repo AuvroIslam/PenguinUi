@@ -86,3 +86,9 @@ export * from './components/navigation/RadialMenu';
 export * from './components/navigation/Onboarding';
 export * from './components/navigation/CollapsingHeader';
 export * from './components/navigation/LiquidTabBar';
+
+// Overlays and feedback
+export * from './components/overlays/BottomSheet';
+export * from './components/overlays/Dialog';
+export * from './components/overlays/Toast';
+export * from './components/overlays/DynamicIsland';

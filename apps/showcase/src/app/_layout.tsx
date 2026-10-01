@@ -8,10 +8,10 @@ import {
 import { GeistMono_400Regular } from '@expo-google-fonts/geist-mono';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { PenguinProvider, useTheme, type ThemeOverrides } from 'penguin-ui';
+import { PenguinProvider, Toaster, useTheme, type ThemeOverrides } from 'penguin-ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Platform, StatusBar as RNStatusBar, useColorScheme } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SchemeContext, type Scheme } from '@/scheme';
 
@@ -27,6 +27,7 @@ const overrides: ThemeOverrides = {
 
 function Screens() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
 
   // Expo Go on Android 14 and below is not edge to edge and paints the status bar black.
   // Matching it to the page keeps the top of the screen seamless; under edge to edge this is a no-op.
@@ -43,6 +44,7 @@ function Screens() {
           contentStyle: { backgroundColor: theme.colors.background },
         }}
       />
+      <Toaster top={insets.top} />
     </>
   );
 }
