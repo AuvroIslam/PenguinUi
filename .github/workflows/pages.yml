@@ -1,8 +1,7 @@
 name: Deploy site
 
+# The site is hosted on Vercel. This GitHub Pages build stays available as a manual fallback.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
