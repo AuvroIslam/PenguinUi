@@ -3,11 +3,16 @@ import {
   Banner,
   BottomSheet,
   Button,
+  CircularProgress,
   Dialog,
   DynamicIsland,
   Glyph,
   IconButton,
   MorphingDialog,
+  ProgressBar,
+  PullToRefresh,
+  Skeleton,
+  Spinner,
   Text,
   Tooltip,
   toast,
@@ -340,6 +345,124 @@ function BannerDemo() {
   );
 }
 
+function SkeletonDemo() {
+  const theme = useTheme();
+  const [loading, setLoading] = useState(true);
+  const row = (i: number) => (
+    <View key={i} style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+      <Skeleton loading={loading} width={44} height={44} radius="pill">
+        <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: ['#F4581C', '#3B82F6', '#1E9E5A'][i] }} />
+      </Skeleton>
+      <View style={{ flex: 1, gap: 8 }}>
+        <Skeleton loading={loading} width="62%" height={14}>
+          <Text variant="label">{['Ada Lovelace', 'Grace Hopper', 'Alan Kay'][i]}</Text>
+        </Skeleton>
+        <Skeleton loading={loading} width="88%" height={12}>
+          <Text variant="caption" tone="muted">
+            {['Shared a new design file', 'Commented on your prototype', 'Started following you'][i]}
+          </Text>
+        </Skeleton>
+      </View>
+    </View>
+  );
+  return (
+    <Col align="stretch" gap={18} style={{ paddingHorizontal: 18, paddingTop: 16 }}>
+      <View style={{ gap: 18, padding: 16, borderRadius: 20, backgroundColor: theme.colors.surface }}>{[0, 1, 2].map(row)}</View>
+      <Button size="sm" variant="secondary" onPress={() => setLoading((l) => !l)}>
+        {loading ? 'Finish loading' : 'Load again'}
+      </Button>
+    </Col>
+  );
+}
+
+function SpinnerDemo() {
+  const theme = useTheme();
+  return (
+    <Col gap={18}>
+      <Row gap={30}>
+        {(['arc', 'dots', 'bars'] as const).map((v) => (
+          <View key={v} style={{ alignItems: 'center', gap: 10 }}>
+            <Spinner variant={v} size={36} />
+            <Text variant="micro" tone="muted">
+              {v}
+            </Text>
+          </View>
+        ))}
+      </Row>
+      <Row gap={30}>
+        {(['orbit', 'pulse'] as const).map((v) => (
+          <View key={v} style={{ alignItems: 'center', gap: 10 }}>
+            <Spinner variant={v} size={36} color={theme.colors.accent} />
+            <Text variant="micro" tone="muted">
+              {v}
+            </Text>
+          </View>
+        ))}
+      </Row>
+    </Col>
+  );
+}
+
+function ProgressBarDemo() {
+  const [value, setValue] = useState(0.25);
+  return (
+    <Col align="stretch" gap={24} style={{ paddingHorizontal: 24, paddingTop: 40 }}>
+      <ProgressBar value={value} />
+      <ProgressBar tone="primary" />
+      <Row>
+        <Button size="sm" variant="secondary" onPress={() => setValue((v) => Math.max(0, v - 0.2))}>
+          Less
+        </Button>
+        <Button size="sm" onPress={() => setValue((v) => Math.min(1, v + 0.2))}>
+          More
+        </Button>
+      </Row>
+    </Col>
+  );
+}
+
+function CircularDemo() {
+  const [value, setValue] = useState(0.4);
+  return (
+    <Col gap={20}>
+      <CircularProgress value={value} label="Uploaded" />
+      <Row>
+        <Button size="sm" variant="secondary" onPress={() => setValue(0.15)}>
+          Reset
+        </Button>
+        <Button size="sm" onPress={() => setValue((v) => Math.min(1, Math.round((v + 0.3) * 100) / 100))}>
+          Add 30%
+        </Button>
+      </Row>
+    </Col>
+  );
+}
+
+function PullDemo() {
+  const theme = useTheme();
+  const [count, setCount] = useState(0);
+  return (
+    <View style={{ height: 470, alignSelf: 'stretch', borderRadius: 18, overflow: 'hidden', backgroundColor: theme.colors.surfaceSunken }}>
+      <PullToRefresh
+        onRefresh={() => new Promise((r) => setTimeout(() => {
+          setCount((n) => n + 1);
+          r(null);
+        }, 1600))}
+        contentContainerStyle={{ padding: 14, gap: 10 }}
+      >
+        <Text variant="caption" tone="muted" align="center">
+          {count ? `Refreshed ${count} time${count > 1 ? 's' : ''}` : 'Pull down to refresh'}
+        </Text>
+        {Array.from({ length: 8 }, (_, i) => (
+          <View key={i} style={{ height: 62, borderRadius: 14, backgroundColor: theme.colors.surface, justifyContent: 'center', paddingHorizontal: 16 }}>
+            <Text variant="label">Message {i + 1 + count * 8}</Text>
+          </View>
+        ))}
+      </PullToRefresh>
+    </View>
+  );
+}
+
 export const overlays: Demo[] = [
   {
     id: 'bottom-sheet',
@@ -421,5 +544,55 @@ export const overlays: Demo[] = [
       'Drops from the top edge on a bouncy spring. A line along its bottom shrinks toward the moment it will leave, so the time left is visible. Holding the banner stops the line; letting go resumes it.',
     touch: 'Notification haptic by tone. Flick up to dismiss.',
     Component: BannerDemo,
+  },
+  {
+    id: 'skeleton',
+    name: 'Skeleton',
+    category: 'Overlays',
+    summary: 'Loading placeholder.',
+    motion:
+      'A soft band of light sweeps left to right with a short rest between passes. Every skeleton shares one clock and knows where it sits on screen, so a whole page is crossed by a single sweep. When loading ends, the real content fades in in place.',
+    layout: 'fill',
+    Component: SkeletonDemo,
+  },
+  {
+    id: 'spinner',
+    name: 'Spinner',
+    category: 'Overlays',
+    summary: 'Five loading indicators.',
+    motion:
+      'The arc breathes its length while it turns, the dots rise in a wave, the bars move like an equaliser, one orbit dot chases another, and the pulse sends out rings that fade as they grow.',
+    Component: SpinnerDemo,
+  },
+  {
+    id: 'progress-bar',
+    name: 'ProgressBar',
+    category: 'Overlays',
+    summary: 'Linear progress.',
+    motion:
+      'The fill springs to its value on a heavy spring so jumps land softly, with a glint on the leading edge while it moves. The indeterminate segment stretches as it speeds through the middle and shrinks at the ends.',
+    layout: 'fill',
+    Component: ProgressBarDemo,
+  },
+  {
+    id: 'circular-progress',
+    name: 'CircularProgress',
+    category: 'Overlays',
+    summary: 'Ring progress.',
+    motion:
+      'The ring fills on a spring while the percentage rolls. Reaching 100 is an event: the ring turns green, the figure gives way to a check that draws itself, and the ring gives one pulse.',
+    touch: 'Success haptic at 100 percent.',
+    Component: CircularDemo,
+  },
+  {
+    id: 'pull-to-refresh',
+    name: 'PullToRefresh',
+    category: 'Overlays',
+    summary: 'Liquid pull to refresh.',
+    motion:
+      'Pulling draws a drop out of the top edge, its neck thinning as the bulb swells. At the threshold the neck snaps back into the edge and the bulb, left hanging, becomes the spinner. When the work is done it shrinks away and the content rises.',
+    touch: 'A rigid tap at the threshold, medium when the refresh starts.',
+    layout: 'fill',
+    Component: PullDemo,
   },
 ];

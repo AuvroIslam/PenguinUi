@@ -96,3 +96,8 @@ export * from './components/overlays/MorphingDialog';
 export * from './components/overlays/ActionSheet';
 export * from './components/overlays/Tooltip';
 export * from './components/overlays/Banner';
+export * from './components/overlays/Skeleton';
+export * from './components/overlays/Spinner';
+export * from './components/overlays/ProgressBar';
+export * from './components/overlays/CircularProgress';
+export * from './components/overlays/PullToRefresh';
